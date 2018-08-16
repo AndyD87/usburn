@@ -40,9 +40,9 @@ set(CURRENT_PROJECT usburn)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
   
 file (GLOB  SOURCE_FILES
-            "*.h"
-            "*.c"
-            "*.cpp")
+            "src/*.h"
+            "src/*.c"
+            "src/*.cpp")
 
 add_executable( ${CURRENT_PROJECT} ${SOURCE_FILES} )
 

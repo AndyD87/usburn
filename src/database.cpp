@@ -149,49 +149,57 @@ int32_t db_findpicname(TPicDef& pic)
 // finds PIC-ID for the known PIC
 int32_t db_findpicid(uint16_t picid, TPicDef& pic)
 {
+	int32_t iReturn = 0;
 	FILE *fdatei;
 	fdatei = fopen(P_filename, "r");
 	if (fdatei == NULL)  
   {    
   	fprintf(stderr, "## missing Database - end program\n");
-  	return(1);
+    iReturn = -1;
   }
-
-	TPicDef newpic;
-	int32_t picSize = sizeof(newpic);
-	if (f_i) fprintf(stdout, " size of datastructure %d \n", picSize);
-	fread (&newpic, picSize, 1, fdatei);
-	stringconvert(newpic);
-	fprintf(stdout, "Database detected V.%d (%s)\n",newpic.cpu, newpic.name);
-
-	unsigned char aktcpu = 0;
-	switch (prog.core)
+  else
   {
-  	case CORE_12: aktcpu = 12; break;  // 10 kommt nicht vor
-  	case CORE_14: aktcpu = 14; break;  // 16
-  	case CORE_16: aktcpu = 16; break;  // 18
-  	case CORE_17: aktcpu = 16; break;  // 18K
-  	case CORE_18: aktcpu = 16; break;  // 18J 
-  	case CORE_30: aktcpu = 24; break;
-  	case CORE_33: aktcpu = 24; break;
-  }
+    TPicDef newpic;
+    int32_t picSize = sizeof(newpic);
+    if (f_i) fprintf(stdout, " size of datastructure %d \n", picSize);
+    fread (&newpic, picSize, 1, fdatei);
+    stringconvert(newpic);
+    fprintf(stdout, "Database detected V.%d (%s)\n",newpic.cpu, newpic.name);
 
-	while (!feof(fdatei))
-  {
-  	fread (&newpic, picSize, 1, fdatei);
-  	stringconvert(newpic);
-    //fprintf(stdout, " Name %s \n", newpic.name);
-  	if ( ((newpic.devid.id & newpic.devid.idmask) == (picid & newpic.devid.idmask)) && (newpic.cpu == aktcpu) ) break;
+    unsigned char aktcpu = 0;
+    switch (prog.core)
+    {
+      case CORE_12: aktcpu = 12; break;  // 10 kommt nicht vor
+      case CORE_14: aktcpu = 14; break;  // 16
+      case CORE_16: aktcpu = 16; break;  // 18
+      case CORE_17: aktcpu = 16; break;  // 18K
+      case CORE_18: aktcpu = 16; break;  // 18J
+      case CORE_30: aktcpu = 24; break;
+      case CORE_33: aktcpu = 24; break;
+      default:
+        printf("Unknown core %u\n", prog.core);
+    }
 
-  }
-	fclose(fdatei);
+    if(aktcpu != 0)
+    {
+      while (!feof(fdatei))
+      {
+        fread (&newpic, picSize, 1, fdatei);
+        stringconvert(newpic);
+        //fprintf(stdout, " Name %s \n", newpic.name);
+        if ( ((newpic.devid.id & newpic.devid.idmask) == (picid & newpic.devid.idmask)) && (newpic.cpu == aktcpu) ) break;
 
-	if ( ((pic.devid.id & pic.devid.idmask) == (picid & pic.devid.idmask)) && (newpic.cpu == aktcpu) )
-  {
-  	pic = newpic;
-  	return(0);
+      }
+      fclose(fdatei);
+
+      if ( ((pic.devid.id & pic.devid.idmask) == (picid & pic.devid.idmask)) && (newpic.cpu == aktcpu) )
+      {
+        pic = newpic;
+        return(0);
+      }
+    }
   }
-	return(-1);
+  return iReturn;
 }
 
 

@@ -224,38 +224,55 @@ typedef struct {         // 22 uint8_t
 } TCfgbits;
 
 typedef struct {    //25 uint8_t
-    int32_t	Nr;
-    int32_t	Key;
+  int32_t	Nr;
+  int32_t	Key;
   uint16_t	mask;
-    int32_t	desc;
+  int32_t	desc;
   uint8_t	flags;    //0:-  1:h  2:xh
   uint16_t	init;
-    int32_t	fieldNr;
-    int32_t	settingNr;
+  int32_t	fieldNr;
+  int32_t	settingNr;
 } TField;
 
-typedef struct {    //20 uint8_t
-		int32_t	Nr;
+typedef struct
+{    //20 uint8_t
+	int32_t	Nr;
 	uint16_t	req;
 	uint16_t	value;
-		int32_t	desc;
-		int32_t	settingNr;
-		int32_t	checksum;
+	int32_t	desc;
+	int32_t	settingNr;
+	int32_t	checksum;
 } TSetting;
 
-typedef struct {    //12 uint8_t
-		int32_t	Nr;
+typedef struct
+{    //12 uint8_t
+	int32_t	Nr;
 	uint16_t	typ;
 	uint16_t	protstart;
-		int32_t	protende;
+	int32_t	protende;
 } TChecksum;
 
 
 
-#pragma pack(push, 8)          /* set alignment to 8 -- really important */
+#pragma pack(push, 8)          /* set alignment to 1 -- really important */
+
+/**
+ * @brief datastructure for the programmer
+ */
+typedef struct T_taktik  // 7 uint8_t
+{
+	uint8_t	flash;
+	uint8_t	eeprom;
+	uint8_t	id;
+	uint8_t	config;
+	uint8_t	erase;
+	uint8_t	cp;
+	uint8_t	read_eeprom;
+} T_taktik;
 
 //Struktur of the database
-typedef struct {
+typedef struct
+{
 	char name[21];
 	uint8_t cpu;
 	uint8_t power;
@@ -273,23 +290,46 @@ typedef struct {
 	__int32_t ExtraInt;
 	uint8_t ExtraBool;
 
-	struct {
-		uint8_t io, adc, adctyp, uart, spi, i2c, can, usb, timer, compare,
-			capture, pwm, ccp, eccp, ssp, ext;
+	struct
+	{
+		uint8_t io;
+		uint8_t adc;
+		uint8_t adctyp;
+		uint8_t uart;
+		uint8_t spi;
+		uint8_t i2c;
+		uint8_t can;
+		uint8_t usb;
+		uint8_t timer;
+		uint8_t compare;
+		uint8_t capture;
+		uint8_t pwm;
+		uint8_t ccp;
+		uint8_t eccp;
+		uint8_t ssp;
+		uint8_t ext;
 		uint8_t fill7;  //unpacked
 		uint8_t fill8;  //unpacked
 		uint8_t fill9;  //unpacked
 	} interfaces;
 
-	struct {
-		double min, max, deflt;
+	struct
+	{
+		double min;
+		double max, deflt;
 	} vpp;
 
-	struct {
-		double min, max, dfltmin, dfltmax, nominal;
+	struct
+	{
+		double min;
+		double max;
+		double dfltmin;
+		double dfltmax;
+		double nominal;
 	} vdd;
 
-	struct {
+	struct
+	{
 		uint8_t memtech, ovrpgm, tries;
 		uint8_t fill10;  //unpacked
 		uint8_t fill11;  //unpacked
@@ -306,69 +346,81 @@ typedef struct {
 		uint8_t fill20;  //unpacked
 	} pgming;
 
-  struct {
-        uint16_t pgm, lvpgm, eedata, cfg, userid, erase, lverase;
+  struct
+  {
+    uint16_t pgm;
+    uint16_t lvpgm;
+    uint16_t eedata;
+    uint16_t cfg;
+    uint16_t userid;
+    uint16_t erase;
+    uint16_t lverase;
   } wait;
 
-	struct {
-		unsigned char pgm, eedata, userid, cfg, rowerase;
+	struct
+	{
+		uint8_t pgm;
+		uint8_t eedata;
+		uint8_t userid;
+		uint8_t cfg;
+		uint8_t rowerase;
 		uint8_t fill21;  //unpacked
 	} latches;
 
-  struct {
-        int32_t min, max;    // 32 Bit mit vorzeichen, klappt so nicht unter 64-bit-Linux
+  struct
+  {
+    int32_t min;
+    int32_t max;    // 32 Bit mit vorzeichen, klappt so nicht unter 64-bit-Linux
   } pgmmem;
 
-  struct {
-        int32_t min, max;
+  struct
+  {
+    int32_t min;
+    int32_t max;
   } eedata;
 
-  struct {
-        int32_t min, max, modeaddr;
+  struct
+  {
+    int32_t min;
+    int32_t max;
+    int32_t modeaddr;
   } extpgm;
 
-  struct {
-        int32_t min, max;
+  struct
+  {
+    int32_t min;
+    int32_t max;
   } cfgmem;
 
-  struct {
-        int32_t min, max;
+  struct
+  {
+    int32_t min;
+    int32_t max;
   } calmem;
 
-  struct {
-        int32_t min, max;
+  struct
+  {
+    int32_t min;
+    int32_t max;
   } userid;
 
-	struct {
-		uint32_t min, max;
-				uint32_t idmask, id;
+	struct
+	{
+		uint32_t min;
+		uint32_t max;
+		uint32_t idmask;
+		uint32_t id;
 	} devid;
 
-	struct {
-		uint8_t flash, eeprom, id, config, erase, cp, read_eeprom;
-	} taktik;
+	T_taktik taktik;
+
 	uint8_t fill21;  //unpacked
 	uint8_t fill22;  //unpacked
 	uint8_t fill23;  //unpacked
 	uint8_t fill24;  //unpacked
 	uint8_t fill25;  //unpacked
-
 } TPicDef;
 
-
-
-// datastructure for the programmer
-
-typedef struct T_taktik  // 7 uint8_t
-{
-	uint8_t	flash;
-	uint8_t	eeprom;
-	uint8_t	id;
-	uint8_t	config;
-	uint8_t	erase;
-	uint8_t	cp;
-	uint8_t	read_eeprom;
-} T_taktik;
 typedef struct T_latches // Schreibpuffergroeßen in uint8_t
 												 // 5 uint8_t
 {
@@ -410,13 +462,13 @@ typedef struct T_PICtype // 9 + 7 + 5 + 14 = 35 uint8_t
 
 struct programmer {
   usb_dev_handle *dev;
-    int32_t interface;
-    int32_t ep_in, ep_out;
-    int32_t usbmode;
-    int32_t mode;
+  int32_t interface;
+  int32_t ep_in, ep_out;
+  int32_t usbmode;
+  int32_t mode;
 
-    int32_t fw;      // version (e.g. firmwareversion)
-    int32_t device;    // device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
+  int32_t fw;      // version (e.g. firmwareversion)
+  int32_t device;    // device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
   char usb_name[64];
   unsigned char supp;
 
@@ -424,7 +476,7 @@ struct programmer {
 	double gainOff, pwm0VOff, gainOn, pwm0VOn;
 	double vdd;
 
-		int32_t in_calibration, block_timer;
+	int32_t in_calibration, block_timer;
 	char VppLoopMode;  //0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
 	unsigned char socket, core;
 
@@ -451,7 +503,7 @@ struct programmer {
   uint16_t chipid;
   uint16_t revision;
 
-	TPicDef pic;    // alles ueber den PIC fuer den Brenner
+	TPicDef pic;							//!< alles ueber den PIC fuer den Brenner
 	TPIC HexIn, HexOut;
 	uint16_t Calmem[40000];
 	char calmemsaved;
@@ -460,9 +512,9 @@ struct programmer {
 	char picname[21];
 	char OsccalString[10];
 	uint16_t OsccalRom;
-		int32_t OsccalPar;    // OSCCAL-valu from komandline option, cvan be negative vor PIC10F
+	int32_t OsccalPar;				//!< OSCCAL-valu from komandline option, cvan be negative vor PIC10F
 	uint16_t BGmask;
-		int32_t BGadr;
+	int32_t BGadr;
 	uint16_t BGvalue;
 	char BGString[10];
 	uint16_t BGnewvalue;

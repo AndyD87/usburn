@@ -180,15 +180,7 @@ int32_t search_brenner8(void)
  */
 int32_t programmer_command(unsigned char *data_in, int32_t datasz, unsigned char *data_out)
 {
-    int32_t rc;
-
-#ifdef DEBUG
-		int32_t i;
-
-	fprintf(stderr, "=>");
-	for (i=0; i<datasz; i++) fprintf(stderr, " %02X", data_in[i]);
-	fprintf(stderr, "\n");
-#endif
+  int32_t rc;
 
   if (prog.usbmode == MODE_INT)
   {
