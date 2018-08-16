@@ -32,7 +32,7 @@
  * int32_t db_listpics(__uint8_t software);
  * int32_t db_findpicid(__uint32_t picid, TPicDef& pic);
  * int32_t db_load_db(void);
- * word db_getdefConfMask(int32_t adr);
+ * uint16_t db_getdefConfMask(int32_t adr);
  * void db_find_BG(void);
  */
 
@@ -384,9 +384,9 @@ TCfgbits db_getCfgbitsAdr(int32_t adr)
 
 //ermittelt die zur Adresse passende Configmaske
 // dh. alle Bits die auf 1 gesetzt werden können
-word db_getdefConfMask(int32_t adr)
+uint16_t db_getdefConfMask(int32_t adr)
 {
-	word result = 0;
+	uint16_t result = 0;
 	Cfgbits = db_getCfgbitsAdr(adr);
 
 	if (Cfgbits.Nr > 0)

@@ -4,7 +4,7 @@
  *  Wed Aug 23 18:57:43 2006
  *  Copyright  2006  Florian Demski
  *  Copyright  2008  Joerg Bredendiek (sprut)
- *  
+ *
  ****************************************************************************/
 
 /*
@@ -22,7 +22,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
- 
+
 #ifndef __B8_H__
 #define __B8_H__
 
@@ -43,15 +43,9 @@
 
 using namespace std;
 
-#define byte			__uint8_t
-#define word			__uint32_t
-
-#define true			1;
-#define false			0;
-
 typedef union _BYTE
 {
-    byte _byte;
+    uint8_t _byte;
     struct
     {
         unsigned b0:1;
@@ -214,46 +208,46 @@ typedef union _BYTE
 
 class TPIC {
 public:
-	word	Flash[0x40000];
-	word	ROM[0x1000];
-	word	ID[8];
-	word 	Config[24];
+	uint16_t	Flash[0x40000];
+	uint16_t	ROM[0x1000];
+	uint16_t	ID[8];
+	uint16_t 	Config[24];
 };
 
-typedef struct {     		// 22 Byte
+typedef struct {     		// 22 uint8_t
     int32_t	Nr;
     int32_t	Key;
     uint32_t addr;	// 32 bit unsigned
-	word	unused;
+  uint16_t	unused;
     int32_t	cfgbitsnr;
     int32_t	fieldNr;
 } TCfgbits;
 
-typedef struct {		//25 Byte
+typedef struct {		//25 uint8_t
     int32_t	Nr;
     int32_t	Key;
-	word	mask;
+  uint16_t	mask;
     int32_t	desc;
-	byte	flags;		//0:-  1:h  2:xh
-	word	init;
+  uint8_t	flags;		//0:-  1:h  2:xh
+  uint16_t	init;
     int32_t	fieldNr;
     int32_t	settingNr;
 } TField;
 
-typedef struct {		//20 Byte
-    int32_t	Nr;
-	word	req;
-	word	value;
-    int32_t	desc;
-    int32_t	settingNr;
-    int32_t	checksum;
+typedef struct {		//20 uint8_t
+		int32_t	Nr;
+	uint16_t	req;
+	uint16_t	value;
+		int32_t	desc;
+		int32_t	settingNr;
+		int32_t	checksum;
 } TSetting;
 
-typedef struct {		//12 Byte
-    int32_t	Nr;
-	word	typ;
-	word	protstart;
-    int32_t	protende;
+typedef struct {		//12 uint8_t
+		int32_t	Nr;
+	uint16_t	typ;
+	uint16_t	protstart;
+		int32_t	protende;
 } TChecksum;
 
 
@@ -278,23 +272,23 @@ typedef struct {
 	__uint8_t fill6;	//unpacked
 	__int32_t ExtraInt;
 	__uint8_t ExtraBool;
-	
+
 	struct {
 		__uint8_t io, adc, adctyp, uart, spi, i2c, can, usb, timer, compare,
 			capture, pwm, ccp, eccp, ssp, ext;
 		__uint8_t fill7;	//unpacked
 		__uint8_t fill8;	//unpacked
-		__uint8_t fill9;	//unpacked	
+		__uint8_t fill9;	//unpacked
 	} interfaces;
-	
+
 	struct {
 		double min, max, deflt;
 	} vpp;
-	
+
 	struct {
 		double min, max, dfltmin, dfltmax, nominal;
 	} vdd;
-	
+
 	struct {
 		__uint8_t memtech, ovrpgm, tries;
 		__uint8_t fill10;	//unpacked
@@ -303,7 +297,7 @@ typedef struct {
 		__uint8_t fill13;	//unpacked
 		__uint8_t fill14;	//unpacked
 		double lvpthresh;
-        __uint32_t panelsize;
+				__uint32_t panelsize;
 		__uint8_t fill15;	//unpacked
 		__uint8_t fill16;	//unpacked
 		__uint8_t fill17;	//unpacked
@@ -311,45 +305,45 @@ typedef struct {
 		__uint8_t fill19;	//unpacked
 		__uint8_t fill20;	//unpacked
 	} pgming;
-	
-	struct {
+
+  struct {
         __uint32_t pgm, lvpgm, eedata, cfg, userid, erase, lverase;
-	} wait;
-	
+  } wait;
+
 	struct {
 		unsigned char pgm, eedata, userid, cfg, rowerase;
 		__uint8_t fill21;	//unpacked
 	} latches;
-	
-	struct {
+
+  struct {
         int32_t min, max;    // 32 Bit mit vorzeichen, klappt so nicht unter 64-bit-Linux
-	} pgmmem;
-	
-	struct {
-        int32_t min, max;
-	} eedata;
+  } pgmmem;
 
-	struct {
+  struct {
+        int32_t min, max;
+  } eedata;
+
+  struct {
         int32_t min, max, modeaddr;
-	} extpgm;
+  } extpgm;
 
-	struct {
+  struct {
         int32_t min, max;
-	} cfgmem;
-	
-	struct {
-        int32_t min, max;
-	} calmem;
+  } cfgmem;
 
-	struct {
+  struct {
         int32_t min, max;
-	} userid;
+  } calmem;
+
+  struct {
+        int32_t min, max;
+  } userid;
 
 	struct {
 		__uint32_t min, max;
-        __uint32_t idmask, id;
+				__uint32_t idmask, id;
 	} devid;
-	
+
 	struct {
 		__uint8_t flash, eeprom, id, config, erase, cp, read_eeprom;
 	} taktik;
@@ -358,53 +352,53 @@ typedef struct {
 	__uint8_t fill23;	//unpacked
 	__uint8_t fill24;	//unpacked
 	__uint8_t fill25;	//unpacked
-	
+
 } TPicDef;
 
 
 
 // datastructure for the programmer
 
-typedef struct T_taktik  // 7 Byte
+typedef struct T_taktik  // 7 uint8_t
 {
-	byte	flash;
-	byte	eeprom;
-	byte	id;
-	byte	config;
-	byte	erase;
-	byte	cp;
-	byte	read_eeprom;
+	uint8_t	flash;
+	uint8_t	eeprom;
+	uint8_t	id;
+	uint8_t	config;
+	uint8_t	erase;
+	uint8_t	cp;
+	uint8_t	read_eeprom;
 } T_taktik;
-typedef struct T_latches // Schreibpuffergrößen in Byte
-                         // 5 Byte
+typedef struct T_latches // Schreibpuffergrößen in uint8_t
+												 // 5 uint8_t
 {
-	byte	pgm ;
-	byte	eedata;
-	byte	userid;
-	byte	cfg;
-	byte	rowerase;    // Löschbereich
-                                                    // in Byte
+	uint8_t	pgm ;
+	uint8_t	eedata;
+	uint8_t	userid;
+	uint8_t	cfg;
+	uint8_t	rowerase;    // Löschbereich
+																										// in uint8_t
 } T_latches;
 typedef struct T_wait    // alle Brenn-Zeiten in Mikrosekunden
-                         // 14 Byte
+												 // 14 uint8_t
 {
-	word	pgm;
-	word	lvpgm;
-	word	eedata;
-	word	cfg;
-	word	userid;
-	word	erase;
-	word	lverase;
+	uint16_t	pgm;
+	uint16_t	lvpgm;
+	uint16_t	eedata;
+	uint16_t	cfg;
+	uint16_t	userid;
+	uint16_t	erase;
+	uint16_t	lverase;
 } T_wait;
-typedef struct T_PICtype // 9 + 7 + 5 + 14 = 35 Byte
+typedef struct T_PICtype // 9 + 7 + 5 + 14 = 35 uint8_t
 {
-	byte	cpu;
-	byte	power;
+	uint8_t	cpu;
+	uint8_t	power;
 // 		uint32_t blocksize;
-	word	blocksize;
-	byte	pins;
-	byte	vpp;
-	word	panelsize;
+	uint16_t	blocksize;
+	uint8_t	pins;
+	uint8_t	vpp;
+	uint16_t	panelsize;
 	T_taktik	taktik;
 	T_latches	latches;
 	T_wait		wait;
@@ -415,22 +409,22 @@ typedef struct T_PICtype // 9 + 7 + 5 + 14 = 35 Byte
 #pragma pack(pop)
 
 struct programmer {
-	usb_dev_handle *dev;
+  usb_dev_handle *dev;
     int32_t interface;
     int32_t ep_in, ep_out;
     int32_t usbmode;
     int32_t mode;
-	
+
     int32_t fw;			// version (e.g. firmwareversion)
     int32_t device;		// device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
-	char usb_name[64];
-	unsigned char supp;
-	
+  char usb_name[64];
+  unsigned char supp;
+
 	double refZ, divU;
 	double gainOff, pwm0VOff, gainOn, pwm0VOn;
 	double vdd;
-	
-    int32_t in_calibration, block_timer;
+
+		int32_t in_calibration, block_timer;
 	char VppLoopMode;	//0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
 	unsigned char socket, core;
 
@@ -447,32 +441,32 @@ struct programmer {
 	BYTE flags1;
 	BYTE flags2;
 	BYTE flags3;
-	byte ADCL;
-	byte ADCH;
+	uint8_t ADCL;
+	uint8_t ADCH;
 
-    int32_t max_flash;
-    int32_t max_ee;
-    int32_t EndFlash;
-    int32_t EndEE;
-	word chipid;
-	word revision;
-	
+  int32_t max_flash;
+  int32_t max_ee;
+  int32_t EndFlash;
+  int32_t EndEE;
+  uint16_t chipid;
+  uint16_t revision;
+
 	TPicDef pic;		// alles über den PIC fuer den Brenner
 	TPIC HexIn, HexOut;
-	word Calmem[40000];
+	uint16_t Calmem[40000];
 	char calmemsaved;
 	char InHexfilename[255];
 	char OutHexfilename[255];
 	char picname[21];
 	char OsccalString[10];
-	word OsccalRom;
-    int32_t OsccalPar;		// OSCCAL-valu from komandline option, cvan be negative vor PIC10F
-	word BGmask;
-    int32_t BGadr;
-	word BGvalue;
+	uint16_t OsccalRom;
+		int32_t OsccalPar;		// OSCCAL-valu from komandline option, cvan be negative vor PIC10F
+	uint16_t BGmask;
+		int32_t BGadr;
+	uint16_t BGvalue;
 	char BGString[10];
-	word BGnewvalue;
-	byte WRITE_EDATA_KEY;
+	uint16_t BGnewvalue;
+	uint8_t WRITE_EDATA_KEY;
 };
 
 extern struct programmer prog;
@@ -526,13 +520,13 @@ int32_t prog_set_socket(unsigned char socket);
 int32_t prog_target_run(void);
 int32_t prog_regulate_vpp(double lower, double mid, double upper);
 int32_t prog_identify(unsigned char core, unsigned char socket);
-	
-	
+
+
 /* firmware.c */
 int32_t firm_boot_on(void);
 int32_t firm_upload(void);
 int32_t firm_boot_off(void);
-	
+
 
 /* calibration.c */
 int32_t cal_step3(void);			// Messung der PWM-Regelsteilheit
@@ -555,7 +549,7 @@ int32_t db_findpicname(TPicDef& pic);
 int32_t db_listpics(__uint8_t software);
 int32_t db_findpicid(__uint32_t picid, TPicDef& pic);
 int32_t db_load_db(void);
-word db_getdefConfMask(int32_t adr);
+uint16_t db_getdefConfMask(int32_t adr);
 void db_find_BG(void);
 
 
@@ -563,9 +557,9 @@ void db_find_BG(void);
 string hex2str(int32_t zahl);
 int32_t idNr(int32_t adr);
 int32_t confNr(int32_t adr);
-word PICzelle(int32_t adr);
-//word getleerwert(int32_t adr, unsigned char core);
-word getleerwert(int32_t adr);
+uint16_t PICzelle(int32_t adr);
+//uint16_t getleerwert(int32_t adr, unsigned char core);
+uint16_t getleerwert(int32_t adr);
 int32_t savehex12(int32_t anfang, int32_t ende);
 int32_t savehex14(int32_t anfang, int32_t ende);
 int32_t savehex16(int32_t anfang, int32_t ende);

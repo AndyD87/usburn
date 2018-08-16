@@ -175,7 +175,7 @@ int32_t search_brenner8(void)
 // data_in  - pointer to input-Daten
 // dataz    - zahl der Input-Bytes
 // data_out - pointer zu output daten
-// rc       - zahl der output-byte
+// rc       - zahl der output-uint8_t
 int32_t programmer_command(unsigned char *data_in, int32_t datasz, unsigned char *data_out)
 {
     int32_t rc;
@@ -238,7 +238,7 @@ int32_t prog_get_version(void)
 	//fprintf(stdout, "rc %d bu0 %d bu1 %d bu2 %d bu3 %d \n", rc, buf[0], buf[1], buf[2], buf[3]);
 	if (rc < 0)	return rc;				//Fehler
 	if (rc != 4) return -EFAULT;			//falsche Bytezahl
-	if (memcmp(buf, cmd, 1)) return -EFAULT;	// erstes Byte komt nicht zurueck
+	if (memcmp(buf, cmd, 1)) return -EFAULT;	// erstes uint8_t komt nicht zurueck
 
 	prog.fw     = buf[2]; 
 	prog.device = buf[3];
@@ -525,8 +525,8 @@ int32_t prog_read_chipid(void)
 	unsigned char cmd[] = { CMD_READ_CHIPID };
 	unsigned char buf[USB_BLOCKSIZE];
     int32_t rc;
-	word Rev = 0;
-	word ID  = 0;
+  uint16_t Rev = 0;
+  uint16_t ID  = 0;
 	
 	rc = programmer_command(cmd, sizeof(cmd), buf);
 	if (rc < 0) return rc;
@@ -583,7 +583,7 @@ int32_t prog_read_flash(int32_t start, int32_t stop)
 	fprintf(stdout,">> read PIC-FLASH ");
 	if (f_i) fprintf(stdout,"from %5.4x fo %5.4x ", start, stop);
 	prog_set_address(start, stop);
-	byte Flash[0x80000];		  //512k
+	uint8_t Flash[0x80000];		  //512k
     int32_t flashpointer = 0;
 	unsigned char cmd[] = { CMD_READ_FLASH};
 	unsigned char buf[USB_BLOCKSIZE];
@@ -660,7 +660,7 @@ int32_t prog_read_calmem(int32_t start, int32_t stop)
 	fprintf(stdout,">> read CALMEM ");
 	if (f_i) fprintf(stdout,"from %5.4x fo %5.4x ", start, stop);
 	prog_set_address(start, stop);
-	byte Flash[0x80000];		  //512k
+	uint8_t Flash[0x80000];		  //512k
     int32_t flashpointer = 0;
 	unsigned char cmd[] = { CMD_READ_FLASH};
 	unsigned char buf[USB_BLOCKSIZE];
@@ -702,7 +702,7 @@ int32_t prog_read_ee(int32_t start, int32_t stop)
 {
 	fprintf(stdout, ">> read PIC-EEPROM");
 	prog_set_address(start, stop);
-	word EE[0x1000];		  
+	uint16_t EE[0x1000];
     int32_t eepointer = 0;
 	unsigned char cmd[] = { CMD_READ_EEPROM};
 	unsigned char buf[USB_BLOCKSIZE];
@@ -840,8 +840,8 @@ int32_t prog_check_firmware(void)
 	unsigned char cmd[] = { CMD_PSUMM, 0x00, 0x08, 0x5F, 0xFF};
 	unsigned char buf[USB_BLOCKSIZE];
     int32_t rc;
-	word psummF, psummE;
-	byte psummFl, psummFh;
+  uint16_t psummF, psummE;
+  uint8_t psummFl, psummFh;
 
 	// pruefsumme von 0800 bis 5FFF berechnen	
 	rc = programmer_command(cmd, sizeof(cmd), buf);
@@ -891,7 +891,7 @@ int32_t savecalmem(void)
 	if (prog.pic.calmem.min < 0) return 0 ;		//failsave
     int32_t k;
     int32_t Flashpointer = 0;
-	byte Flash[0x4000];
+  uint8_t Flash[0x4000];
 	puts (">> save CALMEM (eg. OSCCAL)");
 	prog_set_address(prog.pic.calmem.min, prog.pic.calmem.max);
 	unsigned char buf[USB_BLOCKSIZE];
@@ -914,9 +914,9 @@ int32_t savecalmem(void)
 
 // hexin und calmem zusammenf�hren
 // beim PIC18FxxJxx die Config eintragen
-word HexinMux(int32_t Adr)
+uint16_t HexinMux(int32_t Adr)
 {
-	word wert = 0;
+	uint16_t wert = 0;
 	//normalfall: nichts zu tun
 	if ((Adr >= prog.pic.pgmmem.min) && (Adr <= prog.pic.pgmmem.max)) wert = prog.HexIn.Flash[Adr];
 
@@ -959,7 +959,7 @@ word HexinMux(int32_t Adr)
 int32_t prog_write_flash(int32_t start, int32_t stop)
 {
     int32_t Adrr = 0;
-	word FMaske = 0xFFFF;
+  uint16_t FMaske = 0xFFFF;
 	switch (prog.core)
 	{
 		case CORE_12: FMaske = 0x0FFF; break;
@@ -1008,7 +1008,7 @@ int32_t prog_write_flash(int32_t start, int32_t stop)
 
         for (int32_t k=0; k<=anzahl-1; k++)
 		{
-			word Puffer = HexinMux(k+Adrr) & FMaske;
+			uint16_t Puffer = HexinMux(k+Adrr) & FMaske;
 			cmd[2*k+3] = Puffer % 0x100;    //low
 			cmd[2*k+4] = Puffer / 0x100;    //high
 		}
@@ -1066,7 +1066,7 @@ int32_t prog_write_ee(int32_t start, int32_t stop)
 		if (memcmp(buf, cmd, 1)) return -EFAULT;	
 
 		Adrr += anzahl;
-		// (EndEE+1) ansonsten absturz bei nur 1 Byte EEPROM-Daten
+		// (EndEE+1) ansonsten absturz bei nur 1 uint8_t EEPROM-Daten
 		printf("."); fflush(stdout);
 	}
 	fprintf(stdout,"\n");
@@ -1075,11 +1075,11 @@ int32_t prog_write_ee(int32_t start, int32_t stop)
 
 
 //Config brennen
-// Puffergr��e ist fest auf 2 eingestellt
+// Puffergroesse ist fest auf 2 eingestellt
 int32_t prog_write_config(void)
 {
     int32_t bytezahl;
-	word puffer;
+  uint16_t puffer;
 	if (prog.core == CORE_18) return(0);
 	puts (">> program CONFIG");
 	prog_set_address(prog.pic.cfgmem.min, prog.pic.cfgmem.max);
@@ -1121,7 +1121,7 @@ int32_t prog_write_id(void)
     int32_t lastusedadr;
     int32_t bytezahl;
     int32_t Puffer;
-	word IDMaske = 0x000F;
+  uint16_t IDMaske = 0x000F;
 
 	if (prog.core >= CORE_30) return(0);	// ACHTUNG f�r Kern=33 gibt es eine ID
 	if (prog.pic.userid.min == -1) return (0);
@@ -1245,7 +1245,7 @@ int32_t prog_set_pictype(TPicDef& pic)
 	PICdata.power			= pic.power;
 	PICdata.blocksize		= pic.blocksize;
 	PICdata.pins 			= pic.pins;
-	PICdata.vpp			= (byte)floor(pic.vpp.deflt*10); 			// 130  = 13,0V
+	PICdata.vpp			= (uint8_t)floor(pic.vpp.deflt*10); 			// 130  = 13,0V
 	PICdata.panelsize		= 0;							// singelpanel ?
 	if (pic.pgming.panelsize < pic.pgmmem.max) PICdata.panelsize = pic.pgming.panelsize;	// multipanel  !
 

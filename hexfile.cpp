@@ -140,7 +140,7 @@ int32_t confNr(int32_t adr)
 
 
 // liefert den Zur Adresse passenden Zellenwert
-word PICzelle(int32_t adr)	//, unsigned char core)
+uint16_t PICzelle(int32_t adr)	//, unsigned char core)
 {
 	unsigned char core = prog.core;
     int32_t buffer;
@@ -176,9 +176,9 @@ word PICzelle(int32_t adr)	//, unsigned char core)
 
 
 // Wert einer leeren Zelle
-word getleerwert(int32_t adr)
+uint16_t getleerwert(int32_t adr)
 {
-	word result = 0x3FFF;
+	uint16_t result = 0x3FFF;
 	switch (prog.core)
 	{
 	case CORE_12:
@@ -214,7 +214,7 @@ int32_t savehex12(int32_t anfang, int32_t ende)
     int32_t adressex2;
     int32_t sum;
     int32_t zeiger = anfang;
-	word leerwert;
+	uint16_t leerwert;
 
       leerwert = getleerwert(zeiger);
       if (anfang > ende) return(0);
@@ -260,7 +260,7 @@ int32_t savehex14(int32_t anfang, int32_t ende)
     int32_t adressex2;
     int32_t sum;
     int32_t zeiger;
-	word leerwert;
+	uint16_t leerwert;
 	zeiger = anfang;	
 
 	//Suchen der letzten belegten Zelle
@@ -309,7 +309,7 @@ int32_t savehex16(int32_t anfang, int32_t ende)
     int32_t adressex2;
     int32_t sum;
     int32_t zeiger = anfang;
-	word leerwert;
+	uint16_t leerwert;
 
 	while (zeiger < ende)
 	{
@@ -554,25 +554,25 @@ unsigned char st2hex(unsigned char zeichen)
 }
 
 // Lesen eines 8-Bit Wertes aus dem HEX-File
-word ReadByte(void)
+uint16_t ReadByte(void)
 {
-	word a = st2hex( fgetc(indatei) );
-	word b = st2hex( fgetc(indatei) );
+	uint16_t a = st2hex( fgetc(indatei) );
+	uint16_t b = st2hex( fgetc(indatei) );
 	return((a<<4) + b);
 }
 
 
 // Lesen eines 16-Bit Wertes aus dem HEX-File - big endian
-word ReadWord(void)
+uint16_t ReadWord(void)
 {
-	word w = (ReadByte() << 8) + ReadByte();
+	uint16_t w = (ReadByte() << 8) + ReadByte();
 }
 
 
 // Lesen eines 16-Bit Wertes aus dem HEX-File - little endian
-word ReadWordLH(void)
+uint16_t ReadWordLH(void)
 {
-	word w = ReadByte() + (ReadByte() << 8);
+	uint16_t w = ReadByte() + (ReadByte() << 8);
 }
 
 
@@ -581,10 +581,10 @@ word ReadWordLH(void)
 uint32_t Wortlesen24(void)
 {
 //	if ((PICAdresse % 1) != 0) return(0);
-	byte a = ReadByte();
-	byte b = ReadByte();
-	byte c = ReadByte();
-	byte d = ReadByte();
+	uint8_t a = ReadByte();
+	uint8_t b = ReadByte();
+	uint8_t c = ReadByte();
+	uint8_t d = ReadByte();
 	return(a + (b << 8) + (c << 16) + (d << 24));
 }
 
@@ -597,8 +597,8 @@ void OpenHexFile12(void)
 	prog.EndEE    = -1;
     int32_t ULBA      = 0;
     int32_t SBA       = 0;
-	word ByteAnzahl;
-	word HexTyp;
+	uint16_t ByteAnzahl;
+	uint16_t HexTyp;
     int32_t Adresse;
     int32_t Pointer;
 
@@ -658,8 +658,8 @@ void OpenHexFile14(void)
 	prog.EndEE    = -1;
     int32_t ULBA      = 0;
     int32_t SBA       = 0;
-	word ByteAnzahl;
-	word HexTyp;
+	uint16_t ByteAnzahl;
+	uint16_t HexTyp;
     int32_t Adresse;
     int32_t Pointer;
 
@@ -716,8 +716,8 @@ void OpenHexFile16(void)
 	prog.EndEE    = -1;
     int32_t ULBA      = 0;
     int32_t SBA       = 0;
-	word ByteAnzahl;
-	word HexTyp;
+	uint16_t ByteAnzahl;
+	uint16_t HexTyp;
     int32_t Adresse;
     int32_t Pointer;
 
@@ -777,13 +777,13 @@ void OpenHexFile30(void)
 	prog.EndEE    = -1;
     int32_t ULBA      = 0;
     int32_t SBA       = 0;
-	word ByteAnzahl;
-	word HexTyp;
+	uint16_t ByteAnzahl;
+	uint16_t HexTyp;
     int32_t Adresse;
     int32_t PICAdresse;
     int32_t HexinAdresse;
     int32_t Pointer;
-	word puffer16;
+	uint16_t puffer16;
 
 	do
 	{
@@ -803,7 +803,7 @@ void OpenHexFile30(void)
 			if (ByteAnzahl > 0)
             for (int32_t k=0; k<=(ByteAnzahl / 2) -1; k++)
 			{
-				// der Pointer zeigt auf ein Byte
+				// der Pointer zeigt auf ein uint8_t
 				Pointer = (ULBA * 0x10000) + (SBA * 0x10) + Adresse + k*2;
 				PICAdresse = Pointer / 2;
 				HexinAdresse = PICAdresse;

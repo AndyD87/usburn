@@ -76,9 +76,9 @@ int32_t firm_upload(void)
     uint32_t Endadresse = 0x7FFF;
 	while (Adresse < Endadresse)
 	{
-        //64 byte loeschen
+        //64 uint8_t loeschen
 		unsigned char cmd[USB_BLOCKSIZE] = { BOOT_ERASE_FLASH, 
-				(unsigned char) 0x01,				// 1 x 64 byte
+				(unsigned char) 0x01,				// 1 x 64 uint8_t
                 (unsigned char) (Adresse      ),	// low
                 (unsigned char) (Adresse >>  8),		// high
                 (unsigned char) (Adresse >> 16) };	// upper
@@ -89,17 +89,17 @@ int32_t firm_upload(void)
 		if (rc < 1) return -EFAULT;	// 1 Zeichen zurueck
 		if (memcmp(buf, cmd, 1)) return -EFAULT;	
 
-		//4 x 16 byte schreiben
+		//4 x 16 uint8_t schreiben
         for (int32_t k=0; k<=3; k++)
 		{
 			// The write holding register for the 18F4550 family is
-			// actually 32-byte. The code below only tries to write
-			// 16-byte because the GUI program only sends out 16-byte
+			// actually 32-uint8_t. The code below only tries to write
+			// 16-uint8_t because the GUI program only sends out 16-uint8_t
 			// at a time.
 			// This limitation will be fixed in the future version.
-			// LEN = # of byte to write	
+			// LEN = # of uint8_t to write	
 			unsigned char cmd[USB_BLOCKSIZE] = { BOOT_WRITE_FLASH, 
-					(unsigned char) 0x10,				// Laenge 16 Byte
+					(unsigned char) 0x10,				// Laenge 16 uint8_t
                     (unsigned char) (Adresse      ),	// low
                     (unsigned char) (Adresse >>  8),	// high
                     (unsigned char) (Adresse >> 16) };	// upper
@@ -124,7 +124,7 @@ int32_t firm_upload(void)
 	while (Adresse < Endadresse)
 	{
 		unsigned char cmd[USB_BLOCKSIZE] = { BOOT_READ_FLASH, 
-				(unsigned char) 0x10,				// Laenge 16 Byte
+				(unsigned char) 0x10,				// Laenge 16 uint8_t
                 (unsigned char) (Adresse      ),	// low
                 (unsigned char) (Adresse >>  8),		// high
                 (unsigned char) (Adresse >> 16)};	// upper

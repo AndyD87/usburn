@@ -42,7 +42,7 @@
 int32_t main(int32_t argc, char* argv[])
 {
 	int32_t  areg_int;
-	word areg_word;
+	uint16_t areg_word;
 
 	init_system();
 
@@ -859,8 +859,8 @@ int32_t main(int32_t argc, char* argv[])
 		prog_read_CONFIG();
 		puts (">> compare PIC-Config");
 		int32_t fehler = 0;
-		word confmask = 0;
-		word sollwert = 0;
+		uint16_t confmask = 0;
+		uint16_t sollwert = 0;
 		for (int32_t k=prog.pic.cfgmem.min; k<=prog.pic.cfgmem.max; k++) 
 		{
 			confmask = db_getdefConfMask(k);
