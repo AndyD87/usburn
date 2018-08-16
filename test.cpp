@@ -27,7 +27,7 @@
  * this file contains everything for the interactive test of the hardware
  * the following functions can be called from outside:
  *
- * int test_hardware(void)
+ * int32_t test_hardware(void)
  */
 
 //********************************************************************************************************************
@@ -44,7 +44,7 @@
 // Routinen zum Testen der Brennerhardware
 //********************************************************************************************************************
 
-int test_hardware(void)
+int32_t test_hardware(void)
 {
 	char taste;
 	char vdd = 4;

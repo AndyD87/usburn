@@ -27,8 +27,8 @@
  * this file contains everything to read and write hex-files with usburn
  * the following functions can be called from outside:
  *
- * int savehexout(void)		writes prog.HexOut into a HEX-file
- * int openhexfile(void)	reads a HEX-Fie into prog.HexIn
+ * int32_t savehexout(void)		writes prog.HexOut into a HEX-file
+ * int32_t openhexfile(void)	reads a HEX-Fie into prog.HexIn
  */
 
 
@@ -57,7 +57,7 @@ FILE *indatei;
 //********************************************************************************************************************
 
 //wandelt eine ziffer in char
-char int2char(int zeichen)
+char int2char(int32_t zeichen)
 {
 	if (zeichen > 15) return(0);
 	if (zeichen <  0) return(0);
@@ -86,7 +86,7 @@ char int2char(int zeichen)
 
 
 //wandelt eine int-zahl in einen 2-stelligen hex-string um
-string hex2str(int zahl)
+string hex2str(int32_t zahl)
 {
 	string s;
 	s =  int2char(zahl >> 4);
@@ -96,11 +96,11 @@ string hex2str(int zahl)
 
 
 //wandelt 16-Bit in eines string lsb first
-string zweiByte(int zeiger, int &sum)
+string zweiByte(int32_t zeiger, int32_t &sum)
 {
-	int wert = 0;
-	int Adrr = zeiger;
-	int teil;
+    int32_t wert = 0;
+    int32_t Adrr = zeiger;
+    int32_t teil;
 	string s = "";
 	if ((zeiger >= 0x000000) && (zeiger <= 0x02ABFF)) wert = prog.HexOut.Flash[Adrr];
 	if ((zeiger >= 0xF80000) && (zeiger <= 0xF8000D)) wert = prog.HexOut.Config[Adrr-0xF80000];
@@ -117,7 +117,7 @@ string zweiByte(int zeiger, int &sum)
 
 
 // liefert die Adressen fuer ID-Zellen
-int idNr(int adr)
+int32_t idNr(int32_t adr)
 {
 	if ((adr >=   0x2000) && (adr <=   0x2004)) return(adr -   0x2000);	// 14
 	if ((adr >= 0x200000) && (adr <= 0x200007)) return(adr - 0x200000);	// 16
@@ -127,7 +127,7 @@ int idNr(int adr)
 
 
 // liefert die Adressen fuer Config-Zellen
-int confNr(int adr)
+int32_t confNr(int32_t adr)
 {
 	if ((adr >= 0x002007) && (adr <= 0x00200E)) return(adr - 0x002007);	// 14-Bit-Kern
 	if ((adr >= 0x00FFF8) && (adr <= 0x00FFFF)) return(adr - 0x00FFF8);	// PIC18FxxJxx mit  64 kByte Flash
@@ -140,10 +140,10 @@ int confNr(int adr)
 
 
 // liefert den Zur Adresse passenden Zellenwert
-word PICzelle(int adr)	//, unsigned char core)
+word PICzelle(int32_t adr)	//, unsigned char core)
 {
 	unsigned char core = prog.core;
-	int buffer;
+    int32_t buffer;
 	buffer = 0;
 	switch (core)
 	{
@@ -176,7 +176,7 @@ word PICzelle(int adr)	//, unsigned char core)
 
 
 // Wert einer leeren Zelle
-word getleerwert(int adr)
+word getleerwert(int32_t adr)
 {
 	word result = 0x3FFF;
 	switch (prog.core)
@@ -207,25 +207,25 @@ word getleerwert(int adr)
 
 
 // Schreiben von prog.HexOut in ein Hex-File fuer 12-Bit-Kern-PICs -Unterroutine
-int savehex12(int anfang, int ende)
+int32_t savehex12(int32_t anfang, int32_t ende)
 {
   	string s;
-	int bytezahl;
-	int adressex2;
-	int sum;
-	int zeiger = anfang;
+    int32_t bytezahl;
+    int32_t adressex2;
+    int32_t sum;
+    int32_t zeiger = anfang;
 	word leerwert;
 
       leerwert = getleerwert(zeiger);
       if (anfang > ende) return(0);
 
-	//while loop wird für jede Zeile im HEX-File durchlaufen
+	//while loop wird fï¿½r jede Zeile im HEX-File durchlaufen
 	while (zeiger <= ende)
 	{
 		bytezahl = 0;
 		sum = 0;
 		s = "";
-		// suche nächste Zelle mit Daten
+		// suche nï¿½chste Zelle mit Daten
 		while (((PICzelle(zeiger) & leerwert) == leerwert) && (zeiger <= ende)) zeiger++;
 		if (zeiger > ende) return(0); //keine Daten mehr
 		adressex2 = zeiger * 2;
@@ -253,13 +253,13 @@ int savehex12(int anfang, int ende)
 
 
 // Schreiben von prog.HexOut in ein Hex-File fuer 14-Bit-Kern-PICs -Unterroutine
-int savehex14(int anfang, int ende)
+int32_t savehex14(int32_t anfang, int32_t ende)
 {
   	string s;
-	int bytezahl;
-	int adressex2;
-	int sum;
-	int zeiger;
+    int32_t bytezahl;
+    int32_t adressex2;
+    int32_t sum;
+    int32_t zeiger;
 	word leerwert;
 	zeiger = anfang;	
 
@@ -302,13 +302,13 @@ int savehex14(int anfang, int ende)
 
 
 // Schreiben von prog.HexOut in ein Hex-File fuer 16-Bit-Kern-PICs -Unterroutine
-int savehex16(int anfang, int ende)
+int32_t savehex16(int32_t anfang, int32_t ende)
 {
   	string s;
-	int bytezahl;
-	int adressex2;
-	int sum;
-	int zeiger = anfang;
+    int32_t bytezahl;
+    int32_t adressex2;
+    int32_t sum;
+    int32_t zeiger = anfang;
 	word leerwert;
 
 	while (zeiger < ende)
@@ -351,10 +351,10 @@ int savehex16(int anfang, int ende)
 // bits 16-31 of the Linear Base Address
 // (LBA), where bits 0-15 of the LBA are zero. Bits 16-31 of the LBA
 // are referred to as the Upper Linear Base Address (ULBA).
-void elar_zeile(int adresse)
+void elar_zeile(int32_t adresse)
 {
-	int k;
-	int sum;
+    int32_t k;
+    int32_t sum;
 	string s;
 	// die Adresse im HEX-File ist 2xPIC-Adresse
 	s = ":02000004";
@@ -367,7 +367,7 @@ void elar_zeile(int adresse)
 	k = (adresse*2 & 0x00FF0000) >> 16;
 	s = s + hex2str(k);
 	sum = sum + k;
-	//und prüfsumme
+	//und prï¿½fsumme
 	//This field contains the check sum on the RECLEN, LOAD OFFSET, RECTYP, and ULBA fields.
 	sum = sum % 256;
 	sum = 256 - sum;
@@ -376,13 +376,13 @@ void elar_zeile(int adresse)
 }
 
 // Schreiben von prog.HexOut in ein Hex-File fuer 24-Bit-Kern-PICs -Unterroutine
-int savehex30(int anfang, int ende)
+int32_t savehex30(int32_t anfang, int32_t ende)
 {
   	string s;
-	int bytezahl;
-	int adressex2;
-	int sum;
-	int zeiger = anfang;
+    int32_t bytezahl;
+    int32_t adressex2;
+    int32_t sum;
+    int32_t zeiger = anfang;
 
 	while (zeiger < ende)
 	{
@@ -414,7 +414,7 @@ int savehex30(int anfang, int ende)
 
 
 // Schreiben von prog.HexOut in ein Hex-File fuer 12-Bit-Kern-PICs
-int SaveHexout12(void)
+int32_t SaveHexout12(void)
 {
 	//Sichern Programmbereich
 	savehex12(0, prog.max_flash);
@@ -431,7 +431,7 @@ int SaveHexout12(void)
 
 
 // Schreiben von prog.HexOut in ein Hex-File fuer 14-Bit-Kern-PICs
-int SaveHexout14(void)
+int32_t SaveHexout14(void)
 {
 	//Sichern Programmbereich
 	savehex14(0, prog.max_flash);
@@ -449,7 +449,7 @@ int SaveHexout14(void)
 
 // Schreiben von prog.HexOut in ein Hex-File fuer 16-Bit-Kern-PICs
 // pic18F  PIC18FxxJxx
-int SaveHexout16(void)
+int32_t SaveHexout16(void)
 {
 	//Sichern Programmbereich
 	//fprintf(stdout, "save Flash from %6x  to %6x Kern %d \n", 0, prog.max_flash, prog.core);
@@ -468,7 +468,7 @@ int SaveHexout16(void)
 
 
 // Schreiben von prog.HexOut in ein Hex-File fuer 24-Bit-Kern-PICs
-int SaveHexout30(void)
+int32_t SaveHexout30(void)
 {
 	//Sichern Programmbereich
 	savehex30(0, prog.max_flash);
@@ -486,7 +486,7 @@ int SaveHexout30(void)
 
 
 // Schreiben von prog.HexOut in ein Hex-File
-int savehexout(void)
+int32_t savehexout(void)
 {
 	//file oeffnen
 	outdatei = fopen(prog.OutHexfilename, "w");
@@ -578,7 +578,7 @@ word ReadWordLH(void)
 
 
 // Lesen eines 32-Bit-Longword
-unsigned int Wortlesen24(void)
+uint32_t Wortlesen24(void)
 {
 //	if ((PICAdresse % 1) != 0) return(0);
 	byte a = ReadByte();
@@ -595,12 +595,12 @@ void OpenHexFile12(void)
 	char ch;
 	prog.EndFlash = 0;
 	prog.EndEE    = -1;
-	int ULBA      = 0;
-	int SBA       = 0;
+    int32_t ULBA      = 0;
+    int32_t SBA       = 0;
 	word ByteAnzahl;
 	word HexTyp;
-	int Adresse;
-	int Pointer;
+    int32_t Adresse;
+    int32_t Pointer;
 
 	do
 	{
@@ -612,7 +612,7 @@ void OpenHexFile12(void)
 		switch (HexTyp)
 		{
 		case 0:
-			for (int k=0; k<=(ByteAnzahl / 2)-1; k++)
+            for (int32_t k=0; k<=(ByteAnzahl / 2)-1; k++)
 			{
 				Pointer = (ULBA * 0x10000) + (SBA * 0x10) + Adresse;	
 				Pointer = Pointer / 2;	
@@ -656,12 +656,12 @@ void OpenHexFile14(void)
 	char ch;
 	prog.EndFlash = 0;
 	prog.EndEE    = -1;
-	int ULBA      = 0;
-	int SBA       = 0;
+    int32_t ULBA      = 0;
+    int32_t SBA       = 0;
 	word ByteAnzahl;
 	word HexTyp;
-	int Adresse;
-	int Pointer;
+    int32_t Adresse;
+    int32_t Pointer;
 
 	do
 	{
@@ -673,7 +673,7 @@ void OpenHexFile14(void)
 		switch (HexTyp)
 		{
 		case 0:
-			for (int k=0; k<=(ByteAnzahl / 2)-1; k++)
+            for (int32_t k=0; k<=(ByteAnzahl / 2)-1; k++)
 			{
 				Pointer = (ULBA * 0x10000) + (SBA * 0x10) + Adresse;	
 				Pointer = Pointer / 2;	
@@ -714,12 +714,12 @@ void OpenHexFile16(void)
 	char ch;
 	prog.EndFlash = 0;
 	prog.EndEE    = -1;
-	int ULBA      = 0;
-	int SBA       = 0;
+    int32_t ULBA      = 0;
+    int32_t SBA       = 0;
 	word ByteAnzahl;
 	word HexTyp;
-	int Adresse;
-	int Pointer;
+    int32_t Adresse;
+    int32_t Pointer;
 
 	do
 	{
@@ -731,14 +731,14 @@ void OpenHexFile16(void)
 		switch (HexTyp)
 		{
 		case 0:
-			for (int k=0; k<=ByteAnzahl-1; k++)
+            for (int32_t k=0; k<=ByteAnzahl-1; k++)
 			{
 				Pointer = (ULBA * 0x10000) + (SBA * 0x10) + Adresse + k;
 	
 				if      ((Pointer >= 0x000000) && (Pointer <= 0x01FFFF)) 
 				{
 					prog.HexIn.Flash[Pointer] = ReadByte();
-					//für PIC18FxxJxx die Config einblenden
+					//fï¿½r PIC18FxxJxx die Config einblenden
 					if ((Pointer >= prog.pic.cfgmem.min) && (Pointer <= prog.pic.cfgmem.max))
 						prog.HexIn.Config[Pointer-prog.pic.cfgmem.min] = prog.HexIn.Flash[Pointer];
 					if (Pointer > prog.EndFlash) prog.EndFlash = Pointer;
@@ -775,14 +775,14 @@ void OpenHexFile30(void)
 	char ch;
 	prog.EndFlash = 0;
 	prog.EndEE    = -1;
-	int ULBA      = 0;
-	int SBA       = 0;
+    int32_t ULBA      = 0;
+    int32_t SBA       = 0;
 	word ByteAnzahl;
 	word HexTyp;
-	int Adresse;
-	int PICAdresse;
-	int HexinAdresse;
-	int Pointer;
+    int32_t Adresse;
+    int32_t PICAdresse;
+    int32_t HexinAdresse;
+    int32_t Pointer;
 	word puffer16;
 
 	do
@@ -801,7 +801,7 @@ void OpenHexFile30(void)
 				ByteAnzahl= (ByteAnzahl % 4) * 4;
 			}
 			if (ByteAnzahl > 0)
-			for (int k=0; k<=(ByteAnzahl / 2) -1; k++)
+            for (int32_t k=0; k<=(ByteAnzahl / 2) -1; k++)
 			{
 				// der Pointer zeigt auf ein Byte
 				Pointer = (ULBA * 0x10000) + (SBA * 0x10) + Adresse + k*2;
@@ -809,9 +809,9 @@ void OpenHexFile30(void)
 				HexinAdresse = PICAdresse;
 				// Daten nach Hexin schreiben
 				// im hex-file sind flash, eeprom und config als 32-Bit worte abgelegt
-				// die höherwertigen Bits sind 0
+				// die hï¿½herwertigen Bits sind 0
 				// ich lese 16-bit-weise ein, damit habe ich auch ungerade Flash-Adressen
-				// die ungerade Adresse enthält den high-Teil
+				// die ungerade Adresse enthï¿½lt den high-Teil
 				puffer16 = ReadWordLH();
 				if      ((Pointer >= 0x000000) && (Pointer <= 0x02ABFF)) 
 				{
@@ -820,7 +820,7 @@ void OpenHexFile30(void)
 				}
 //				else if ((Pointer >= 0x200000) && (Pointer <= 0x200007)) prog.HexIn.ID[idNr(Pointer)] = ReadByte();
 				else if ((Pointer >= 0xF80000) && (Pointer <= 0xF8000D)) prog.HexIn.Config[HexinAdresse-0xF80000] = puffer16;
-				//  die .ROM-Zellen sind nur 16 Bit groß
+				//  die .ROM-Zellen sind nur 16 Bit groï¿½
 				//  EEPROM endet immer bei 0x7FFFFF
 				else if ((Pointer >= 0x7FF000) && (Pointer <= 0x7FFFFF)) 
 				{
@@ -848,7 +848,7 @@ void OpenHexFile30(void)
 
 
 //Einlesen eines HEX-Files nach prog.HexIn
-int openhexfile(void)
+int32_t openhexfile(void)
 {
 	//file oeffnen
 	indatei = fopen(prog.InHexfilename, "r");
@@ -874,7 +874,7 @@ int openhexfile(void)
 		// flash zum Test auflisten
 		if (f_i)
 		{
-			for (int k=0; k<=prog.max_flash; k++)
+            for (int32_t k=0; k<=prog.max_flash; k++)
 			{
 				if ((k % 0x10) ==0) fprintf(stdout,"\n%6x : ", k);
 				fprintf(stdout, "%4x ", prog.HexIn.Flash[k]);

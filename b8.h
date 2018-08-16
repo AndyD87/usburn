@@ -44,7 +44,7 @@
 using namespace std;
 
 #define byte			__uint8_t
-#define word			__uint16_t
+#define word			__uint32_t
 
 #define true			1;
 #define false			0;
@@ -212,7 +212,6 @@ typedef union _BYTE
 #define	RETLW_14	0x3400
 #define no_OSCCAL	0x1000		// value for no OSCCAL on comandline
 
-
 class TPIC {
 public:
 	word	Flash[0x40000];
@@ -222,39 +221,39 @@ public:
 };
 
 typedef struct {     		// 22 Byte
-	int	Nr;
-	int	Key;
-	unsigned int addr;	// 32 bit unsigned
+    int32_t	Nr;
+    int32_t	Key;
+    uint32_t addr;	// 32 bit unsigned
 	word	unused;
-	int	cfgbitsnr;
-	int	fieldNr;
+    int32_t	cfgbitsnr;
+    int32_t	fieldNr;
 } TCfgbits;
 
 typedef struct {		//25 Byte
-	int	Nr;
-	int	Key;
+    int32_t	Nr;
+    int32_t	Key;
 	word	mask;
-	int	desc;
+    int32_t	desc;
 	byte	flags;		//0:-  1:h  2:xh
 	word	init;
-	int	fieldNr;
-	int	settingNr;
+    int32_t	fieldNr;
+    int32_t	settingNr;
 } TField;
 
 typedef struct {		//20 Byte
-	int	Nr;
+    int32_t	Nr;
 	word	req;
 	word	value;
-	int	desc; 
-	int	settingNr;
-	int	checksum;
+    int32_t	desc;
+    int32_t	settingNr;
+    int32_t	checksum;
 } TSetting;
 
 typedef struct {		//12 Byte
-	int	Nr;
+    int32_t	Nr;
 	word	typ;
 	word	protstart;
-	int	protende;
+    int32_t	protende;
 } TChecksum;
 
 
@@ -304,7 +303,7 @@ typedef struct {
 		__uint8_t fill13;	//unpacked
 		__uint8_t fill14;	//unpacked
 		double lvpthresh;
-		__uint16_t panelsize;
+        __uint32_t panelsize;
 		__uint8_t fill15;	//unpacked
 		__uint8_t fill16;	//unpacked
 		__uint8_t fill17;	//unpacked
@@ -314,7 +313,7 @@ typedef struct {
 	} pgming;
 	
 	struct {
-		__uint16_t pgm, lvpgm, eedata, cfg, userid, erase, lverase;
+        __uint32_t pgm, lvpgm, eedata, cfg, userid, erase, lverase;
 	} wait;
 	
 	struct {
@@ -323,32 +322,32 @@ typedef struct {
 	} latches;
 	
 	struct {
-		signed long int min, max;    // 32 Bit mit vorzeichen, klappt so nicht unter 64-bit-Linux
+        int32_t min, max;    // 32 Bit mit vorzeichen, klappt so nicht unter 64-bit-Linux
 	} pgmmem;
 	
 	struct {
-		signed long int min, max;
+        int32_t min, max;
 	} eedata;
 
 	struct {
-		signed long int min, max, modeaddr;
+        int32_t min, max, modeaddr;
 	} extpgm;
 
 	struct {
-		signed long int min, max;
+        int32_t min, max;
 	} cfgmem;
 	
 	struct {
-		signed long int min, max;
+        int32_t min, max;
 	} calmem;
 
 	struct {
-		signed long int min, max;
+        int32_t min, max;
 	} userid;
 
 	struct {
 		__uint32_t min, max;
-		__uint16_t idmask, id;
+        __uint32_t idmask, id;
 	} devid;
 	
 	struct {
@@ -401,7 +400,7 @@ typedef struct T_PICtype // 9 + 7 + 5 + 14 = 35 Byte
 {
 	byte	cpu;
 	byte	power;
-// 		unsigned int blocksize;
+// 		uint32_t blocksize;
 	word	blocksize;
 	byte	pins;
 	byte	vpp;
@@ -417,13 +416,13 @@ typedef struct T_PICtype // 9 + 7 + 5 + 14 = 35 Byte
 
 struct programmer {
 	usb_dev_handle *dev;
-	int interface;
-	int ep_in, ep_out;
-	int usbmode;
-	int mode;
+    int32_t interface;
+    int32_t ep_in, ep_out;
+    int32_t usbmode;
+    int32_t mode;
 	
-	int fw;			// version (e.g. firmwareversion)
-	int device;		// device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
+    int32_t fw;			// version (e.g. firmwareversion)
+    int32_t device;		// device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
 	char usb_name[64];
 	unsigned char supp;
 	
@@ -431,7 +430,7 @@ struct programmer {
 	double gainOff, pwm0VOff, gainOn, pwm0VOn;
 	double vdd;
 	
-	int in_calibration, block_timer;
+    int32_t in_calibration, block_timer;
 	char VppLoopMode;	//0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
 	unsigned char socket, core;
 
@@ -451,10 +450,10 @@ struct programmer {
 	byte ADCL;
 	byte ADCH;
 
-	int max_flash;
-	int max_ee;
-	int EndFlash;
-	int EndEE;
+    int32_t max_flash;
+    int32_t max_ee;
+    int32_t EndFlash;
+    int32_t EndEE;
 	word chipid;
 	word revision;
 	
@@ -467,9 +466,9 @@ struct programmer {
 	char picname[21];
 	char OsccalString[10];
 	word OsccalRom;
-	int OsccalPar;		// OSCCAL-valu from komandline option, cvan be negative vor PIC10F
+    int32_t OsccalPar;		// OSCCAL-valu from komandline option, cvan be negative vor PIC10F
 	word BGmask;
-	int BGadr;
+    int32_t BGadr;
 	word BGvalue;
 	char BGString[10];
 	word BGnewvalue;
@@ -487,100 +486,100 @@ extern "C" {
 
 
 /* programmer_usb.c */
-void sleepms(unsigned int mseconds);
+void sleepms(uint32_t mseconds);
 unsigned char d2c(double d);
 
 void init_system(void);
 void cleanup_system(void);
-int search_brenner8(void);
-int programmer_command(unsigned char *data_in, int datasz, unsigned char *data_out);
+int32_t search_brenner8(void);
+int32_t programmer_command(unsigned char *data_in, int32_t datasz, unsigned char *data_out);
 
-int prog_get_version(void);
-int prog_set_led(unsigned char led);
-int prog_get_supported(void);
-int prog_read_adc(void);
-int prog_set_an(unsigned char an);	
-int prog_set_signal(unsigned char signal);
-int prog_set_pwm(unsigned char pwm_off, unsigned char pwm_on);
-int prog_set_vpp(unsigned char vppl, unsigned char vpph);
-int prog_read_eedata(int start, int length, unsigned char *dst);
-int prog_write_eedata(int start, unsigned char *src, int length);
-int prog_reset(void);
-int prog_read_chipid(void);
-int prog_set_address(int start, int stop);
-int EraseTPIC(TPIC & PIC);
-int prog_read_flash(int start, int stop);
-int prog_read_calmem(int start, int stop);
-int prog_read_ee(int start, int stop);
-int prog_read_ID(void);
-int prog_read_CONFIG(void);
-int prog_check_firmware(void);
-int prog_write_flash(int start, int stop);
-int prog_write_ee(int start, int stop);
-int prog_write_config(void);
-int prog_write_id(void);
-int prog_erase(void);
-int prog_removecp(void);
-int prog_set_core(unsigned char core);
-int prog_set_pictype(TPicDef& pic);
-int prog_set_socket(unsigned char socket);
-int prog_target_run(void);
-int prog_regulate_vpp(double lower, double mid, double upper);
-int prog_identify(unsigned char core, unsigned char socket);
+int32_t prog_get_version(void);
+int32_t prog_set_led(unsigned char led);
+int32_t prog_get_supported(void);
+int32_t prog_read_adc(void);
+int32_t prog_set_an(unsigned char an);
+int32_t prog_set_signal(unsigned char signal);
+int32_t prog_set_pwm(unsigned char pwm_off, unsigned char pwm_on);
+int32_t prog_set_vpp(unsigned char vppl, unsigned char vpph);
+int32_t prog_read_eedata(uint32_t start, uint32_t length, unsigned char *dst);
+int32_t prog_write_eedata(int32_t start, unsigned char *src, int32_t length);
+int32_t prog_reset(void);
+int32_t prog_read_chipid(void);
+int32_t prog_set_address(int32_t start, int32_t stop);
+int32_t EraseTPIC(TPIC & PIC);
+int32_t prog_read_flash(int32_t start, int32_t stop);
+int32_t prog_read_calmem(int32_t start, int32_t stop);
+int32_t prog_read_ee(int32_t start, int32_t stop);
+int32_t prog_read_ID(void);
+int32_t prog_read_CONFIG(void);
+int32_t prog_check_firmware(void);
+int32_t prog_write_flash(int32_t start, int32_t stop);
+int32_t prog_write_ee(int32_t start, int32_t stop);
+int32_t prog_write_config(void);
+int32_t prog_write_id(void);
+int32_t prog_erase(void);
+int32_t prog_removecp(void);
+int32_t prog_set_core(unsigned char core);
+int32_t prog_set_pictype(TPicDef& pic);
+int32_t prog_set_socket(unsigned char socket);
+int32_t prog_target_run(void);
+int32_t prog_regulate_vpp(double lower, double mid, double upper);
+int32_t prog_identify(unsigned char core, unsigned char socket);
 	
 	
 /* firmware.c */
-int firm_boot_on(void);
-int firm_upload(void);
-int firm_boot_off(void);
+int32_t firm_boot_on(void);
+int32_t firm_upload(void);
+int32_t firm_boot_off(void);
 	
 
 /* calibration.c */
-int cal_step3(void);			// Messung der PWM-Regelsteilheit
-int cal_write_data(void);		// write calibration data to control PIC
-int cal_read_data(void);		// read calibration data from control PIC
+int32_t cal_step3(void);			// Messung der PWM-Regelsteilheit
+int32_t cal_write_data(void);		// write calibration data to control PIC
+int32_t cal_read_data(void);		// read calibration data from control PIC
 
-int vpp_loop_on(int mode);
-int vpp_loop_off(void);
+int32_t vpp_loop_on(int32_t mode);
+int32_t vpp_loop_off(void);
 float cal_Kalibrierespannung(void);
-float vpp_getADC(int kanal, int zyklen);
-float vpp_getVoltage(int kanal, int Zyklen);
+float vpp_getADC(int32_t kanal, int32_t zyklen);
+float vpp_getVoltage(int32_t kanal, int32_t Zyklen);
 float vpp_getVpp(void);
 float vpp_getVpp_stable(void);
-int vpp_setVpp(float VppSoll);
+int32_t vpp_setVpp(float VppSoll);
 
 
 /* database.c */
-int db_lookup_pic(void);
-int db_findpicname(TPicDef& pic);
-int db_listpics(__uint8_t software);
-int db_findpicid(__uint16_t picid, TPicDef& pic);
-int db_load_db(void);
-word db_getdefConfMask(int adr);
+int32_t db_lookup_pic(void);
+int32_t db_findpicname(TPicDef& pic);
+int32_t db_listpics(__uint8_t software);
+int32_t db_findpicid(__uint32_t picid, TPicDef& pic);
+int32_t db_load_db(void);
+word db_getdefConfMask(int32_t adr);
 void db_find_BG(void);
 
 
 /* hexfile.c */
-string hex2str(int zahl);
-int idNr(int adr);
-int confNr(int adr);
-word PICzelle(int adr);	
-//word getleerwert(int adr, unsigned char core);
-word getleerwert(int adr);
-int savehex12(int anfang, int ende);
-int savehex14(int anfang, int ende);
-int savehex16(int anfang, int ende);
-int savehex30(int anfang, int ende);
-int SaveHexout12(void);
-int SaveHexout14(void);
-int SaveHexout16(void);
-int SaveHexout30(void);
-int savehexout(void);
-int openhexfile(void);
+string hex2str(int32_t zahl);
+int32_t idNr(int32_t adr);
+int32_t confNr(int32_t adr);
+word PICzelle(int32_t adr);
+//word getleerwert(int32_t adr, unsigned char core);
+word getleerwert(int32_t adr);
+int32_t savehex12(int32_t anfang, int32_t ende);
+int32_t savehex14(int32_t anfang, int32_t ende);
+int32_t savehex16(int32_t anfang, int32_t ende);
+int32_t savehex30(int32_t anfang, int32_t ende);
+int32_t SaveHexout12(void);
+int32_t SaveHexout14(void);
+int32_t SaveHexout16(void);
+int32_t SaveHexout30(void);
+int32_t savehexout(void);
+int32_t openhexfile(void);
 
 
 /* testc */
-int test_hardware(void);
+int32_t test_hardware(void);
 
 
 #ifdef __cplusplus

@@ -27,12 +27,12 @@
  * this file contains everything to use the pic-database-files
  * the following functions can be called from outside:
  *
- * int db_lookup_pic(void);
- * int db_findpicname(TPicDef& pic);
- * int db_listpics(__uint8_t software);
- * int db_findpicid(__uint16_t picid, TPicDef& pic);
- * int db_load_db(void);
- * word db_getdefConfMask(int adr);
+ * int32_t db_lookup_pic(void);
+ * int32_t db_findpicname(TPicDef& pic);
+ * int32_t db_listpics(__uint8_t software);
+ * int32_t db_findpicid(__uint32_t picid, TPicDef& pic);
+ * int32_t db_load_db(void);
+ * word db_getdefConfMask(int32_t adr);
  * void db_find_BG(void);
  */
 
@@ -99,7 +99,7 @@ void stringconvert(TPicDef& pic)
 // finde den zum namen passenden PIC
 // finds the PIC with the known name
 // input: prog.picname
-int db_findpicname(TPicDef& pic)
+int32_t db_findpicname(TPicDef& pic)
 {
 	FILE *fdatei;
 	fdatei = fopen(P_filename, "r");
@@ -110,7 +110,7 @@ int db_findpicname(TPicDef& pic)
 	}
 
 	TPicDef newpic;
-	int picSize = sizeof(newpic);
+	int32_t picSize = sizeof(newpic);
 	if (f_i) fprintf(stdout, " Datastructure-Size %d \n", picSize);
 	fread (&newpic, picSize, 1, fdatei);
 	stringconvert(newpic);
@@ -137,7 +137,7 @@ int db_findpicname(TPicDef& pic)
 
 // finde den zur ID passenden PIC
 // finds PIC-ID for the known PIC
-int db_findpicid(__uint16_t picid, TPicDef& pic)
+int32_t db_findpicid(__uint32_t picid, TPicDef& pic)
 {
 	FILE *fdatei;
 	fdatei = fopen(P_filename, "r");
@@ -148,7 +148,7 @@ int db_findpicid(__uint16_t picid, TPicDef& pic)
 	}
 
 	TPicDef newpic;
-	int picSize = sizeof(newpic);
+	int32_t picSize = sizeof(newpic);
 	if (f_i) fprintf(stdout, " size of datastructure %d \n", picSize);
 	fread (&newpic, picSize, 1, fdatei);
 	stringconvert(newpic);
@@ -188,7 +188,7 @@ int db_findpicid(__uint16_t picid, TPicDef& pic)
 
 // Auflistung aller PICs der Database, die sich mit der Firmware brennen lassen
 // lists all PICs, that can be programmed with the used firmware
-int db_listpics(__uint8_t software)
+int32_t db_listpics(__uint8_t software)
 {
 	FILE *fdatei;
 	fdatei = fopen(P_filename, "r");
@@ -199,9 +199,9 @@ int db_listpics(__uint8_t software)
 		return(1);
 	}
 	TPicDef newpic;
-	int picSize = sizeof(newpic);
+	int32_t picSize = sizeof(newpic);
 	fread (&newpic, picSize, 1, fdatei);
-	int lines = 0;
+	int32_t lines = 0;
 	while (!feof(fdatei))
 	{
 		if (lines % 20 == 0) { fprintf(stderr, "\nName              Pins\n"); lines++; }
@@ -230,7 +230,7 @@ int db_listpics(__uint8_t software)
 
 
 // check if database is existing
-int db_lookup_pic(void)
+int32_t db_lookup_pic(void)
 {
 
 	FILE *fdatei;
@@ -243,7 +243,7 @@ int db_lookup_pic(void)
 	}
 
 	TPicDef pic;
-	int picSize = sizeof(pic);
+	int32_t picSize = sizeof(pic);
 	//fprintf(stdout, " Datensatzlänge %d \n", picSize);
 
 	fread (&pic, picSize, 1, fdatei);
@@ -267,7 +267,7 @@ int db_lookup_pic(void)
 // load the database into memory
 //öffnen aller nötigen files
 //im Fehlerfall wird der name des fehlenden files ausgegeben
-int db_load_db(void)
+int32_t db_load_db(void)
 {
 	FILE *fdatei;
 
@@ -275,7 +275,7 @@ int db_load_db(void)
 	fdatei = fopen(P_filename, "r");
 	if (fdatei == NULL) {fprintf(stderr, "## missing Databasefile %s - end program \n", P_filename); return(1);}
 	TPicDef newpic;
-	int picSize = sizeof(newpic);
+	int32_t picSize = sizeof(newpic);
 	fread (&newpic, picSize, 1, fdatei);	//datum und version
 	EfPIC = 0;
 	while (!feof(fdatei))
@@ -292,7 +292,7 @@ int db_load_db(void)
 	fdatei = fopen(C_filename, "r");
 	if (fdatei == NULL) {fprintf(stderr, "## missing Databasefile %s - end program \n", C_filename); return(1);}
 	TCfgbits newconfig;
-	int configSize = sizeof(newconfig);
+	int32_t configSize = sizeof(newconfig);
 	EfCfgbits = 0;
 	while (!feof(fdatei))
 	{
@@ -309,7 +309,7 @@ int db_load_db(void)
 	fdatei = fopen(F_filename, "r");
 	if (fdatei == NULL) {fprintf(stderr, "## missing Databasefile %s - end program \n", F_filename); return(1);}
 	TField newfield;
-	int fieldSize = sizeof(newfield);
+	int32_t fieldSize = sizeof(newfield);
 	EfField = 0;
 	while (!feof(fdatei))
 	{
@@ -326,7 +326,7 @@ int db_load_db(void)
 	fdatei = fopen(S_filename, "r");
 	if (fdatei == NULL) {fprintf(stderr, "## missing Databasefile %s - end program \n", S_filename); return(1);}
 	TSetting newsetting;
-	int settingSize = sizeof(newsetting);
+	int32_t settingSize = sizeof(newsetting);
 	EfSetting = 0;
 	while (!feof(fdatei))
 	{
@@ -344,10 +344,10 @@ int db_load_db(void)
 
 //übergibt die field mit der Nummer nr
 //falls keine passende field gefunden wird, dann wird im result.Nr=0 übergeben
-TField db_getFieldNr(int nr)
+TField db_getFieldNr(int32_t nr)
 {
 	TField result;
-	int count;
+	int32_t count;
 	result.Nr = 0;
 	count = 0;
 	while ((count < EfField) & (CfField[count].Nr != nr)) count++;
@@ -359,11 +359,11 @@ TField db_getFieldNr(int nr)
 
 //übergibt die cfgbits mit der Nummer nr
 //falls keine passende cfgbits gefunden wird, dann wird im result.Nr=0 übergeben
-TCfgbits db_getCfgbitsNr(int nr)
+TCfgbits db_getCfgbitsNr(int32_t nr)
 {
 	TCfgbits result;
 	result.Nr = 0;
-	int count = 0;
+	int32_t count = 0;
 	while ((count < EfCfgbits) & (CfCfgbits[count].Nr != nr)) count++;
 	if (CfCfgbits[count].Nr == nr) result = CfCfgbits[count]; else result.Nr = 0;
 	return result;
@@ -372,7 +372,7 @@ TCfgbits db_getCfgbitsNr(int nr)
 
 //übergibt die cfgbits zum PIC mit der Adresse adr
 //falls keine passende cfgbits gefunden wird, dann wird im result.Nr=0 übergeben
-TCfgbits db_getCfgbitsAdr(int adr)
+TCfgbits db_getCfgbitsAdr(int32_t adr)
 {
 	TCfgbits result;
 	result = db_getCfgbitsNr(prog.pic.config);
@@ -384,7 +384,7 @@ TCfgbits db_getCfgbitsAdr(int adr)
 
 //ermittelt die zur Adresse passende Configmaske
 // dh. alle Bits die auf 1 gesetzt werden können
-word db_getdefConfMask(int adr)
+word db_getdefConfMask(int32_t adr)
 {
 	word result = 0;
 	Cfgbits = db_getCfgbitsAdr(adr);
@@ -415,7 +415,7 @@ word db_getdefConfMask(int adr)
 // findet die passende Config-Adresse und Bitmaske für BG
 void db_find_BG(void)
 {
-	int adr;
+	int32_t adr;
 	prog.BGmask  = 0x0000;
 	prog.BGadr   = 0x0000;
 	prog.BGvalue = 0x0000;

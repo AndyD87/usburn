@@ -27,9 +27,9 @@
  * this file contains everything to upload new firmware into the programmer
  * the following functions can be called from outside:
  *
- * int firm_boot_on(void)	activate bootloader
- * int firm_upload(void)	upload firmware
- * int firm_boot_off(void)	de-activate bootloader
+ * int32_t firm_boot_on(void)	activate bootloader
+ * int32_t firm_upload(void)	upload firmware
+ * int32_t firm_boot_off(void)	de-activate bootloader
  */
 
 
@@ -47,10 +47,10 @@
 //********************************************************************************************************************
 
 // activate bootloader
-int firm_boot_on(void)
+int32_t firm_boot_on(void)
 {
-	int start = 0xFE;
-	int length = 1;
+    int32_t start = 0xFE;
+    int32_t length = 1;
 	unsigned char src[] = { 0xFF };
 	prog_write_eedata(start, src, length);
 
@@ -61,7 +61,7 @@ int firm_boot_on(void)
 
 
 //upload firmware
-int firm_upload(void)
+int32_t firm_upload(void)
 {
 	prog.core = CORE_16;
 	prog.max_flash = 0x7FFF;
@@ -72,17 +72,17 @@ int firm_upload(void)
 	unsigned char buf[USB_BLOCKSIZE];
 
 	//brennen
-	int Adresse    = 0x0800;
-	int Endadresse = 0x7FFF;
+    uint32_t Adresse    = 0x0800;
+    uint32_t Endadresse = 0x7FFF;
 	while (Adresse < Endadresse)
 	{
-		//64 byte löschen
+        //64 byte loeschen
 		unsigned char cmd[USB_BLOCKSIZE] = { BOOT_ERASE_FLASH, 
 				(unsigned char) 0x01,				// 1 x 64 byte
-				(unsigned char) (Adresse        & 0xFF),	// low
-				(unsigned char) (Adresse >>  8) & 0xFF,		// high
-				(unsigned char) (Adresse >> 16) & 0xFF };	// upper
-		int rc;
+                (unsigned char) (Adresse      ),	// low
+                (unsigned char) (Adresse >>  8),		// high
+                (unsigned char) (Adresse >> 16) };	// upper
+        int32_t rc;
 		rc = programmer_command(cmd, 5, buf);
 		//fprintf(stdout, "E: %d ", rc);
 		if (rc < 0) return rc;
@@ -90,7 +90,7 @@ int firm_upload(void)
 		if (memcmp(buf, cmd, 1)) return -EFAULT;	
 
 		//4 x 16 byte schreiben
-		for (int k=0; k<=3; k++)
+        for (int32_t k=0; k<=3; k++)
 		{
 			// The write holding register for the 18F4550 family is
 			// actually 32-byte. The code below only tries to write
@@ -100,10 +100,10 @@ int firm_upload(void)
 			// LEN = # of byte to write	
 			unsigned char cmd[USB_BLOCKSIZE] = { BOOT_WRITE_FLASH, 
 					(unsigned char) 0x10,				// Laenge 16 Byte
-					(unsigned char) (Adresse        & 0xFF),	// low
-					(unsigned char) (Adresse >>  8) & 0xFF,		// high
-					(unsigned char) (Adresse >> 16) & 0xFF };	// upper
-			for (int L=0; L<=15; L++) cmd[5+L]= (unsigned char) prog.HexIn.Flash[Adresse+L] & 0xFF;
+                    (unsigned char) (Adresse      ),	// low
+                    (unsigned char) (Adresse >>  8),	// high
+                    (unsigned char) (Adresse >> 16) };	// upper
+            for (int32_t L=0; L<=15; L++) cmd[5+L]= (unsigned char) prog.HexIn.Flash[Adresse+L] & 0xFF;
 			rc = programmer_command(cmd, 21, buf);
 			//fprintf(stdout, "W: %d ", rc);
 			if (rc < 0) return rc;
@@ -116,25 +116,25 @@ int firm_upload(void)
 	}; //while
 	printf("\n"); fflush(stdout);
 
-	//prüfen
+    //proefen
 	fprintf(stdout, ">>check control PIC-firmware ");
-	int Fehler = 0;
+    int32_t Fehler = 0;
 	Adresse    = 0x0800;
 	Endadresse = 0x7FFF;
 	while (Adresse < Endadresse)
 	{
 		unsigned char cmd[USB_BLOCKSIZE] = { BOOT_READ_FLASH, 
 				(unsigned char) 0x10,				// Laenge 16 Byte
-				(unsigned char) (Adresse        & 0xFF),	// low
-				(unsigned char) (Adresse >>  8) & 0xFF,		// high
-				(unsigned char) (Adresse >> 16) & 0xFF };	// upper
-		int rc;
+                (unsigned char) (Adresse      ),	// low
+                (unsigned char) (Adresse >>  8),		// high
+                (unsigned char) (Adresse >> 16)};	// upper
+        int32_t rc;
 		rc = programmer_command(cmd, 5, buf);
 		if (rc < 0) return rc;
 		if (rc < 21) return -EFAULT;	// 21 Zeichen zurueck
 		if (memcmp(buf, cmd, 1)) return -EFAULT;	
 
-		for (int k=0; k<=buf[1]-1; k++)
+        for (int32_t k=0; k<=buf[1]-1; k++)
 		{
 			if ((buf[k+5] & 0xFF) != (prog.HexIn.Flash[Adresse+k] & 0xFF))
 			{
@@ -152,14 +152,14 @@ int firm_upload(void)
 
 
 // de-activate bootloader
-int firm_boot_off(void)
+int32_t firm_boot_off(void)
 {
     // Firmwaresignatur loeschen
     // EEPROM-Zelle 0xFC=$FF   $FD=$FF
     // Bootloader deaktivieren
     // EEPROM-Zelle 0xFE (und 0xFF) mit 0 beschreiben
-	int start = 0xFC;
-	int length = 4;
+    int32_t start = 0xFC;
+    int32_t length = 4;
 	unsigned char src[4] = {0xFF, 0xFF, 0x00, 0x00 };
 	prog_write_eedata(start, src, length);
 

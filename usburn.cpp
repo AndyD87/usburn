@@ -39,9 +39,9 @@
 
 
 
-int main(int argc, char* argv[])
+int32_t main(int32_t argc, char* argv[])
 {
-	int  areg_int;
+	int32_t  areg_int;
 	word areg_word;
 
 	init_system();
@@ -72,9 +72,9 @@ int main(int argc, char* argv[])
 
 
 	/* Flag set by `--verbose'. */
-	static int verbose_flag;
+	static int32_t verbose_flag;
      
-	int c;
+	int32_t c;
      
 	while (1)
 	{
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 			 {0, 0, 0, 0}
 		};
 		/* getopt_long stores the option index here. */
-		int option_index = 0;
+		int32_t option_index = 0;
      
 		c = getopt_long (argc, argv, "rwcepidlabfonushktP:S:F:H:T:V:L:B:I:O:",
 			long_options, &option_index);
@@ -306,7 +306,7 @@ int main(int argc, char* argv[])
 	we report the final status resulting from them. */
 	if (verbose_flag) puts ("verbose flag is set");
      
-	/* Print any remaining command line arguments (not options). */
+	/* Print32_t any remaining command line arguments (not options). */
 	if (optind < argc)
 	{
 		printf ("non-option ARGV-elements: ");
@@ -607,7 +607,7 @@ int main(int argc, char* argv[])
 
 	//Typ manuell einstellen für PIC10F... und reanimation
 	// ansonsten Autodetect
-	int chip_id = 0;
+	int32_t chip_id = 0;
 	if (f_d || (prog.core == CORE_12))
 	{
 		if ( !db_findpicname(prog.pic) )
@@ -813,8 +813,8 @@ int main(int argc, char* argv[])
 	{
 		puts (">> compare PIC-data");
 		// FLASH
-		int fehler = 0;
-		for (int k=prog.pic.pgmmem.min; k<=prog.pic.pgmmem.max; k++) if ((prog.HexOut.Flash[k] != prog.HexIn.Flash[k]) && (prog.HexIn.Flash[k] != 0xFFFF))
+		int32_t fehler = 0;
+		for (int32_t k=prog.pic.pgmmem.min; k<=prog.pic.pgmmem.max; k++) if ((prog.HexOut.Flash[k] != prog.HexIn.Flash[k]) && (prog.HexIn.Flash[k] != 0xFFFF))
 		{
 			fehler++;
 			if (f_i) fprintf(stdout, "  FLASH-Addrr : %5.4x : HexIn %5.4x <> HexOut %5.4x\n", k, prog.HexIn.Flash[k], prog.HexOut.Flash[k] ); 
@@ -824,7 +824,7 @@ int main(int argc, char* argv[])
 		fehler = 0;
 		if ((prog.max_ee > 0) && (prog.EndEE > 0))
 		{
-			for (int k=prog.pic.eedata.min; k<=prog.pic.eedata.max; k++) if ((prog.HexOut.ROM[k] != prog.HexIn.ROM[k]) && (prog.HexIn.ROM[k] != 0xFFFF))
+			for (int32_t k=prog.pic.eedata.min; k<=prog.pic.eedata.max; k++) if ((prog.HexOut.ROM[k] != prog.HexIn.ROM[k]) && (prog.HexIn.ROM[k] != 0xFFFF))
 			{
 				fehler++;
 				if (f_i) fprintf(stdout, "  EE   -Addrr : %5.4x : HexIn %5.4x <> HexOut %5.4x\n", k, prog.HexIn.ROM[k], prog.HexOut.ROM[k] ); 
@@ -834,7 +834,7 @@ int main(int argc, char* argv[])
 		// user-ID
 		fehler = 0;
 		if ((prog.pic.userid.min > 0) && (prog.core < CORE_30))
-		for (int k=prog.pic.userid.min; k<=prog.pic.userid.max; k++) if ((prog.HexOut.ID[idNr(k)] != prog.HexIn.ID[idNr(k)]) && (prog.HexIn.ID[idNr(k)] != 0xFFFF))
+		for (int32_t k=prog.pic.userid.min; k<=prog.pic.userid.max; k++) if ((prog.HexOut.ID[idNr(k)] != prog.HexIn.ID[idNr(k)]) && (prog.HexIn.ID[idNr(k)] != 0xFFFF))
 		{
 			fehler++;
 			if (f_i) fprintf(stdout, "  ID   -Addrr : %5.4x : HexIn %5.4x <> HexOut %5.4x\n", k, prog.HexIn.ID[idNr(k)], prog.HexOut.ID[idNr(k)] ); 
@@ -858,10 +858,10 @@ int main(int argc, char* argv[])
 	{
 		prog_read_CONFIG();
 		puts (">> compare PIC-Config");
-		int fehler = 0;
+		int32_t fehler = 0;
 		word confmask = 0;
 		word sollwert = 0;
-		for (int k=prog.pic.cfgmem.min; k<=prog.pic.cfgmem.max; k++) 
+		for (int32_t k=prog.pic.cfgmem.min; k<=prog.pic.cfgmem.max; k++) 
 		{
 			confmask = db_getdefConfMask(k);
 			sollwert = prog.HexIn.Config[confNr(k)] & confmask;
