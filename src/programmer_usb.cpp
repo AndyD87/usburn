@@ -1303,34 +1303,34 @@ int32_t prog_set_pictype(TPicDef& pic)
 {
 	T_PICtype PICdata;
 
-	PICdata.cpu	    = pic.cpu;
-	PICdata.power	    = pic.power;
+	PICdata.cpu					= pic.cpu;
+	PICdata.power				= pic.power;
 	PICdata.blocksize	  = pic.blocksize;
-	PICdata.pins       = pic.pins;
-	PICdata.vpp	    = (uint8_t)floor(pic.vpp.deflt*10);       // 130  = 13,0V
+	PICdata.pins				= pic.pins;
+	PICdata.vpp					= (uint8_t)floor(pic.vpp.deflt*10);       // 130  = 13,0V
 	PICdata.panelsize	  = 0;              // singelpanel ?
 	if (static_cast<int32_t>(pic.pgming.panelsize) < pic.pgmmem.max) PICdata.panelsize = pic.pgming.panelsize;  // multipanel  !
 
 	PICdata.taktik.flash	  = pic.taktik.flash;
 	PICdata.taktik.eeprom	  = pic.taktik.eeprom;
-	PICdata.taktik.id	  = pic.taktik.id;
+	PICdata.taktik.id				= pic.taktik.id;
 	PICdata.taktik.config	  = pic.taktik.config;
 	PICdata.taktik.erase	  = pic.taktik.erase;
-	PICdata.taktik.cp	  = pic.taktik.cp;
+	PICdata.taktik.cp				= pic.taktik.cp;
 	PICdata.taktik.read_eeprom	= pic.taktik.read_eeprom;
 
-	PICdata.latches.pgm	  = pic.latches.pgm;
-	PICdata.latches.eedata	  = pic.latches.eedata;
-	PICdata.latches.userid	  = pic.latches.userid;
-	PICdata.latches.cfg	  = pic.latches.cfg;
-	PICdata.latches.rowerase	= pic.latches.rowerase;
+	PICdata.latches.pgm			= pic.latches.pgm;
+	PICdata.latches.eedata	= pic.latches.eedata;
+	PICdata.latches.userid	= pic.latches.userid;
+	PICdata.latches.cfg			= pic.latches.cfg;
+	PICdata.latches.rowerase= pic.latches.rowerase;
 
-	PICdata.wait.pgm	  = pic.wait.pgm;
-	PICdata.wait.lvpgm	  = pic.wait.lvpgm;
-	PICdata.wait.eedata	  = pic.wait.eedata;
-	PICdata.wait.cfg	  = pic.wait.cfg;
-	PICdata.wait.userid	  = pic.wait.userid;
-	PICdata.wait.erase     = pic.wait.erase;
+	PICdata.wait.pgm				= pic.wait.pgm;
+	PICdata.wait.lvpgm			= pic.wait.lvpgm;
+	PICdata.wait.eedata			= pic.wait.eedata;
+	PICdata.wait.cfg				= pic.wait.cfg;
+	PICdata.wait.userid			= pic.wait.userid;
+	PICdata.wait.erase			= pic.wait.erase;
 	PICdata.wait.lverase	  = pic.wait.lverase;
 
 	if (strcmp(pic.name, "PIC18F1320") == 0) PICdata.wait.eedata = 6000;
@@ -1479,37 +1479,37 @@ void init_system(void)
 	usb_init();
 	memset(&prog, 0, sizeof(prog));
 
-	prog.socket        = SOC_18_ICSP;
-	prog.core          = CORE_14;
-	prog.flags1._byte  = 0;
-	prog.flags2._byte  = 0;
-	prog.flags3._byte  = 0;
-	prog.max_flash	   = 0;
-	prog.max_ee        = 0;
-	prog.calmemsaved   = 0;
-	prog.pic.vpp.deflt = 130;
-	prog.supp          = 0xFF;
-	prog.device      = -1;
-	prog.VppLoopMode   = 3;      //0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
-	prog.U00_off       = 6.16;    // Offsetspannung
-	prog.U00_on        = 6.33;    // Offsetspannung
+	prog.socket					= SOC_18_ICSP;
+	prog.core						= CORE_14;
+	prog.flags1._byte		= 0;
+	prog.flags2._byte		= 0;
+	prog.flags3._byte		= 0;
+	prog.max_flash			= 0;
+	prog.max_ee					= 0;
+	prog.calmemsaved		= 0;
+	prog.pic.vpp.deflt	= 13;
+	prog.supp						= 0xFF;
+	prog.device					= -1;
+	prog.VppLoopMode		= 3;      //0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
+	prog.U00_off				= 6.16;    // Offsetspannung
+	prog.U00_on					= 6.33;    // Offsetspannung
 	strcpy(prog.InHexfilename, "HexIn.hex");
 	strcpy(prog.OutHexfilename, "HexOut.hex");
 	strcpy(prog.picname, "");
-	prog.OsccalPar     = no_OSCCAL;
-	prog.OsccalRom	   = no_OSCCAL;
-	prog.BGmask       = 0x0000;
-	prog.BGadr        = 0x0000;
-	prog.BGvalue      = 0x0000;
-	prog.BGnewvalue	   = 0x0000;
-	prog.WRITE_EDATA_KEY = 0;
+	prog.OsccalPar			= no_OSCCAL;
+	prog.OsccalRom			= no_OSCCAL;
+	prog.BGmask					= 0x0000;
+	prog.BGadr					= 0x0000;
+	prog.BGvalue				= 0x0000;
+	prog.BGnewvalue			= 0x0000;
+	prog.WRITE_EDATA_KEY= 0;
 
 }
 
 void cleanup_system(void)
 {
-  if (prog.dev) {
-//  	prog_reset();
+  if (prog.dev)
+  {
     usb_release_interface(prog.dev, prog.interface);
     usb_reset(prog.dev);
     usb_close(prog.dev);

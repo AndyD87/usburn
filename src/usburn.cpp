@@ -651,7 +651,7 @@ int32_t main(int32_t argc, char* argv[])
     // PIC-Typ einstellen
   	prog_set_pictype(prog.pic);
     //Vpp einstellen
-  	fprintf(stdout, "Vpp = %f V \n", prog.pic.vpp.deflt);
+    fprintf(stdout, "Vpp = %f V \n", prog.pic.vpp.deflt/10);
   	vpp_setVpp(prog.pic.vpp.deflt);
 
 //  	float VppSoll = prog.pic.vpp.deflt;

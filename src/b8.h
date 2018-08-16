@@ -206,7 +206,12 @@ typedef union _BYTE
 #define	RETLW_14	0x3400
 #define no_OSCCAL	0x1000	  // value for no OSCCAL on comandline
 
-class TPIC {
+/**
+ * @todo comment
+ * @brief TBD
+ */
+class TPIC
+{
 public:
 	uint16_t	Flash[0x40000];
 	uint16_t	ROM[0x1000];
@@ -214,28 +219,45 @@ public:
 	uint16_t 	Config[24];
 };
 
-typedef struct {         // 22 uint8_t
-    int32_t	Nr;
-    int32_t	Key;
-    uint32_t addr;  // 32 bit unsigned
+/**
+ * @todo comment
+ * @brief TBD
+ *        Size: 22 uint8_t
+ */
+typedef struct
+{
+  int32_t	Nr;
+  int32_t	Key;
+  uint32_t addr;  //!< 32 bit unsigned
   uint16_t	unused;
-    int32_t	cfgbitsnr;
-    int32_t	fieldNr;
+  int32_t	cfgbitsnr;
+  int32_t	fieldNr;
 } TCfgbits;
 
-typedef struct {    //25 uint8_t
+/**
+ * @todo comment
+ * @brief TBD
+ *        Size: 25 uint8_t
+ */
+typedef struct
+{
   int32_t	Nr;
   int32_t	Key;
   uint16_t	mask;
   int32_t	desc;
-  uint8_t	flags;    //0:-  1:h  2:xh
+  uint8_t	flags;    //!< 0:-  1:h  2:xh
   uint16_t	init;
   int32_t	fieldNr;
   int32_t	settingNr;
 } TField;
 
+/**
+ * @todo comment
+ * @brief TBD
+ *        Size: 20 uint8_t
+ */
 typedef struct
-{    //20 uint8_t
+{
 	int32_t	Nr;
 	uint16_t	req;
 	uint16_t	value;
@@ -244,15 +266,18 @@ typedef struct
 	int32_t	checksum;
 } TSetting;
 
+/**
+ * @todo comment
+ * @brief TBD
+ *        Size: 12 uint8_t
+ */
 typedef struct
-{    //12 uint8_t
+{
 	int32_t	Nr;
 	uint16_t	typ;
 	uint16_t	protstart;
 	int32_t	protende;
 } TChecksum;
-
-
 
 #pragma pack(push, 8)          /* set alignment to 1 -- really important */
 
@@ -316,7 +341,8 @@ typedef struct
 	struct
 	{
 		double min;
-		double max, deflt;
+		double max;
+		double deflt;
 	} vpp;
 
 	struct
@@ -535,7 +561,14 @@ extern "C" {
 void sleepms(uint32_t mseconds);
 unsigned char d2c(double d);
 
+/**
+ * @brief Init usburn with default values
+ */
 void init_system(void);
+
+/**
+ * @brief Close usb connections
+ */
 void cleanup_system(void);
 int32_t search_brenner8(void);
 int32_t programmer_command(unsigned char *data_in, int32_t datasz, unsigned char *data_out);
