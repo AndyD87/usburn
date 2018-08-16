@@ -49,12 +49,12 @@ int32_t test_hardware(void)
 	char taste;
 	char vdd = 4;
 	char vpp = 10;
-	
+  
 	if (prog.device == DEVICE_B9)
-	{
-		char vdd = 3;
-		char vpp = 3;
-	}
+  {
+  	char vdd = 3;
+  	char vpp = 3;
+  }
 
 
 	prog_set_socket(SOC_ICSP);
@@ -73,8 +73,8 @@ int32_t test_hardware(void)
 	puts(" ");
 
 
-	prog_set_led(LED1_OFF);		//green
-	prog_set_led(LED2_OFF);		//yellow
+	prog_set_led(LED1_OFF);    //green
+	prog_set_led(LED2_OFF);    //yellow
 
 	prog_set_signal(SIG_VDD_OFF);
 	prog_set_signal(SIG_VPP_OFF);
@@ -86,23 +86,23 @@ int32_t test_hardware(void)
 	puts(" press ENTER to continue ");
 	taste = getc (stdin);
 
-	// 1 LEDs
-	prog_set_led(LED1_ON);		//green
+  // 1 LEDs
+	prog_set_led(LED1_ON);    //green
 	puts("\nStep 11 :");
 	puts(" check: green LED on "); 
 	puts(" press ENTER to continue ");
 	taste = getc (stdin);
 
-	prog_set_led(LED1_OFF);		//green
-	prog_set_led(LED2_ON);		//yellow
+	prog_set_led(LED1_OFF);    //green
+	prog_set_led(LED2_ON);    //yellow
 	puts("\nStep 12 :");
 	puts(" check: yellow LED on "); 
 	puts(" press ENTER to continue ");
 	taste = getc (stdin);
 
-	prog_set_led(LED2_OFF);		//yellow
+	prog_set_led(LED2_OFF);    //yellow
 
-	// 2 ICSP
+  // 2 ICSP
 	prog_set_signal(SIG_VPP_ON);
 	puts("\nStep 21 :");
 	fprintf(stdout," ICSP: Pin  1 :  > %d V \n", vpp); 
@@ -141,7 +141,7 @@ int32_t test_hardware(void)
 	prog_set_signal(SIG_PGC_OFF);
 
 
-	// 3 RUN
+  // 3 RUN
 	prog_set_socket(SOC_OFF);
 	prog_set_socket(SOC_RUN);
 	puts("\nStep 31 :");
@@ -161,52 +161,52 @@ int32_t test_hardware(void)
 	prog_set_socket(SOC_ICSP);
 
 
-	// 4 VPP1
+  // 4 VPP1
 	if (prog.device == DEVICE_B8)
-	{
-		prog_set_socket(SOC_ICSP);
-		prog_set_pwm( 1,  1);
-		prog_set_signal(SIG_VPP_OFF);
-		sleepms(500);
-		puts("\nStep 41 :");
-		puts(" ICSP: Pin  1 :  < 0.5 V "); 
-		puts(" TS:   Pin  4 :  < 0.5 V "); 
-		puts(" LSP1:        :   4..6 V "); 
-		puts(" press ENTER to continue ");
-		taste = getc (stdin);
+  {
+  	prog_set_socket(SOC_ICSP);
+  	prog_set_pwm( 1,  1);
+  	prog_set_signal(SIG_VPP_OFF);
+  	sleepms(500);
+  	puts("\nStep 41 :");
+  	puts(" ICSP: Pin  1 :  < 0.5 V "); 
+  	puts(" TS:   Pin  4 :  < 0.5 V "); 
+  	puts(" LSP1:        :   4..6 V "); 
+  	puts(" press ENTER to continue ");
+  	taste = getc (stdin);
 
-		prog_set_signal(SIG_VPP_ON);
-		puts("\nStep 42 :");
-		puts(" ICSP: Pin  1 :   4..6 V "); 
-		puts(" TS:   Pin  4 :   4..6 V "); 
-		puts(" LSP1:        :   4..6 V "); 
-		puts(" press ENTER to continue ");
-		taste = getc (stdin);
+  	prog_set_signal(SIG_VPP_ON);
+  	puts("\nStep 42 :");
+  	puts(" ICSP: Pin  1 :   4..6 V "); 
+  	puts(" TS:   Pin  4 :   4..6 V "); 
+  	puts(" LSP1:        :   4..6 V "); 
+  	puts(" press ENTER to continue ");
+  	taste = getc (stdin);
 
-		prog_set_pwm( 70,  70);
-		prog_set_signal(SIG_VPP_OFF);
-		sleepms(500);
-		puts("\nStep 43 :");
-		puts(" ICSP: Pin  1 :  < 0.5 V "); 
-		puts(" TS:   Pin  4 :  < 0.5 V "); 
-		puts(" LSP1:        :   > 14 V "); 
-		puts(" press ENTER to continue ");
-		taste = getc (stdin);
+  	prog_set_pwm( 70,  70);
+  	prog_set_signal(SIG_VPP_OFF);
+  	sleepms(500);
+  	puts("\nStep 43 :");
+  	puts(" ICSP: Pin  1 :  < 0.5 V "); 
+  	puts(" TS:   Pin  4 :  < 0.5 V "); 
+  	puts(" LSP1:        :   > 14 V "); 
+  	puts(" press ENTER to continue ");
+  	taste = getc (stdin);
 
-		prog_set_signal(SIG_VPP_ON);
-		puts("\nStep 44 :");
-		puts(" ICSP: Pin  1 :   > 14 V "); 
-		puts(" TS:   Pin  4 :   > 14 V "); 
-		puts(" LSP1:        :   > 14 V "); 
-		puts(" press ENTER to continue ");
-		taste = getc (stdin);
+  	prog_set_signal(SIG_VPP_ON);
+  	puts("\nStep 44 :");
+  	puts(" ICSP: Pin  1 :   > 14 V "); 
+  	puts(" TS:   Pin  4 :   > 14 V "); 
+  	puts(" LSP1:        :   > 14 V "); 
+  	puts(" press ENTER to continue ");
+  	taste = getc (stdin);
 
-		prog_set_pwm( 10,  10);
-	}
+  	prog_set_pwm( 10,  10);
+  }
 
 	if (prog.device == DEVICE_B9) return 0;
 
-	// ab hier kein Brenner9 mehr 
+  // ab hier kein Brenner9 mehr 
 
 	puts(" is this a Brenner8mini(P) <Y> ? ");
 	taste = getc (stdin);
@@ -214,7 +214,7 @@ int32_t test_hardware(void)
 
 
 
-	// 5 VPP2
+  // 5 VPP2
 	prog_set_socket(SOC_28_40);
 
 	prog_set_pwm( 1,  1);
@@ -252,7 +252,7 @@ int32_t test_hardware(void)
 	prog_set_pwm( 10,  10);
 
 
-	// 6 Testsockel
+  // 6 Testsockel
 /*
 	prog_set_socket(SOC_28_40);
 

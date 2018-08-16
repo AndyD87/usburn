@@ -68,52 +68,52 @@ int32_t firm_upload(void)
 	EraseTPIC(prog.HexIn);
 	if (openhexfile() != 0) return(-1);
 	fprintf(stdout, ">>programm control PIC-firmware ");
-	//unsigned char cmd[USB_BLOCKSIZE];
+  //unsigned char cmd[USB_BLOCKSIZE];
 	unsigned char buf[USB_BLOCKSIZE];
 
-	//brennen
+  //brennen
     uint32_t Adresse    = 0x0800;
     uint32_t Endadresse = 0x7FFF;
 	while (Adresse < Endadresse)
-	{
+  {
         //64 uint8_t loeschen
-		unsigned char cmd[USB_BLOCKSIZE] = { BOOT_ERASE_FLASH, 
-				(unsigned char) 0x01,				// 1 x 64 uint8_t
-                (unsigned char) (Adresse      ),	// low
-                (unsigned char) (Adresse >>  8),		// high
-                (unsigned char) (Adresse >> 16) };	// upper
+  	unsigned char cmd[USB_BLOCKSIZE] = { BOOT_ERASE_FLASH, 
+        (unsigned char) 0x01,        // 1 x 64 uint8_t
+                (unsigned char) (Adresse      ),  // low
+                (unsigned char) (Adresse >>  8),    // high
+                (unsigned char) (Adresse >> 16) };  // upper
         int32_t rc;
-		rc = programmer_command(cmd, 5, buf);
-		//fprintf(stdout, "E: %d ", rc);
-		if (rc < 0) return rc;
-		if (rc < 1) return -EFAULT;	// 1 Zeichen zurueck
-		if (memcmp(buf, cmd, 1)) return -EFAULT;	
+  	rc = programmer_command(cmd, 5, buf);
+    //fprintf(stdout, "E: %d ", rc);
+  	if (rc < 0) return rc;
+  	if (rc < 1) return -EFAULT;  // 1 Zeichen zurueck
+  	if (memcmp(buf, cmd, 1)) return -EFAULT;  
 
-		//4 x 16 uint8_t schreiben
+    //4 x 16 uint8_t schreiben
         for (int32_t k=0; k<=3; k++)
-		{
-			// The write holding register for the 18F4550 family is
-			// actually 32-uint8_t. The code below only tries to write
-			// 16-uint8_t because the GUI program only sends out 16-uint8_t
-			// at a time.
-			// This limitation will be fixed in the future version.
-			// LEN = # of uint8_t to write	
-			unsigned char cmd[USB_BLOCKSIZE] = { BOOT_WRITE_FLASH, 
-					(unsigned char) 0x10,				// Laenge 16 uint8_t
-                    (unsigned char) (Adresse      ),	// low
-                    (unsigned char) (Adresse >>  8),	// high
-                    (unsigned char) (Adresse >> 16) };	// upper
+    {
+      // The write holding register for the 18F4550 family is
+      // actually 32-uint8_t. The code below only tries to write
+      // 16-uint8_t because the GUI program only sends out 16-uint8_t
+      // at a time.
+      // This limitation will be fixed in the future version.
+      // LEN = # of uint8_t to write	
+    	unsigned char cmd[USB_BLOCKSIZE] = { BOOT_WRITE_FLASH, 
+          (unsigned char) 0x10,        // Laenge 16 uint8_t
+                    (unsigned char) (Adresse      ),  // low
+                    (unsigned char) (Adresse >>  8),  // high
+                    (unsigned char) (Adresse >> 16) };  // upper
             for (int32_t L=0; L<=15; L++) cmd[5+L]= (unsigned char) prog.HexIn.Flash[Adresse+L] & 0xFF;
-			rc = programmer_command(cmd, 21, buf);
-			//fprintf(stdout, "W: %d ", rc);
-			if (rc < 0) return rc;
-			if (rc < 1) return -EFAULT;	// 1 Zeichen zurueck
-			if (memcmp(buf, cmd, 1)) return -EFAULT;	
+    	rc = programmer_command(cmd, 21, buf);
+      //fprintf(stdout, "W: %d ", rc);
+    	if (rc < 0) return rc;
+    	if (rc < 1) return -EFAULT;  // 1 Zeichen zurueck
+    	if (memcmp(buf, cmd, 1)) return -EFAULT;  
 
-			Adresse += 16;
-		};
-		printf("."); fflush(stdout);
-	}; //while
+    	Adresse += 16;
+    };
+  	printf("."); fflush(stdout);
+  }; //while
 	printf("\n"); fflush(stdout);
 
     //proefen
@@ -122,29 +122,29 @@ int32_t firm_upload(void)
 	Adresse    = 0x0800;
 	Endadresse = 0x7FFF;
 	while (Adresse < Endadresse)
-	{
-		unsigned char cmd[USB_BLOCKSIZE] = { BOOT_READ_FLASH, 
-				(unsigned char) 0x10,				// Laenge 16 uint8_t
-                (unsigned char) (Adresse      ),	// low
-                (unsigned char) (Adresse >>  8),		// high
-                (unsigned char) (Adresse >> 16)};	// upper
+  {
+  	unsigned char cmd[USB_BLOCKSIZE] = { BOOT_READ_FLASH, 
+        (unsigned char) 0x10,        // Laenge 16 uint8_t
+                (unsigned char) (Adresse      ),  // low
+                (unsigned char) (Adresse >>  8),    // high
+                (unsigned char) (Adresse >> 16)};  // upper
         int32_t rc;
-		rc = programmer_command(cmd, 5, buf);
-		if (rc < 0) return rc;
-		if (rc < 21) return -EFAULT;	// 21 Zeichen zurueck
-		if (memcmp(buf, cmd, 1)) return -EFAULT;	
+  	rc = programmer_command(cmd, 5, buf);
+  	if (rc < 0) return rc;
+  	if (rc < 21) return -EFAULT;  // 21 Zeichen zurueck
+  	if (memcmp(buf, cmd, 1)) return -EFAULT;  
 
         for (int32_t k=0; k<=buf[1]-1; k++)
-		{
-			if ((buf[k+5] & 0xFF) != (prog.HexIn.Flash[Adresse+k] & 0xFF))
-			{
-				Fehler++;
-				if (f_i) fprintf(stdout,"\n Adr: %4x Pic %4x HexIn %4x ", Adresse+k, buf[k+5] & 0xFF, prog.HexIn.Flash[Adresse+k] & 0xFF);
-			};
-		};
-		Adresse += 16;
-		printf("."); fflush(stdout);
-	};
+    {
+    	if ((buf[k+5] & 0xFF) != (prog.HexIn.Flash[Adresse+k] & 0xFF))
+      {
+      	Fehler++;
+      	if (f_i) fprintf(stdout,"\n Adr: %4x Pic %4x HexIn %4x ", Adresse+k, buf[k+5] & 0xFF, prog.HexIn.Flash[Adresse+k] & 0xFF);
+      };
+    };
+  	Adresse += 16;
+  	printf("."); fflush(stdout);
+  };
 	printf("\n"); fflush(stdout);
 	return(Fehler);
 }

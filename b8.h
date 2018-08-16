@@ -63,7 +63,7 @@ typedef union _BYTE
 #define SPRUT_VID		0x04D8
 #define SPRUT_PID		0xFF0B
 
-#define tietel			"usburn V 0.4 (16.05.2010) by sprut (www.sprut.de)"
+#define tietel	    "usburn V 0.4 (16.05.2010) by sprut (www.sprut.de)"
 
 #define CMD_READ_VERSION        0x00	/* read programmer id and firmware version */
 #define CMD_LED_ONOFF           0x31	/* set LEDs */
@@ -106,45 +106,45 @@ typedef union _BYTE
 #define BOOT_RESET              0xFF	/* reset controller PIC */
 
 /* led codes used by CMD_LED_ONOFF */
-#define LED1_ON					0x00	/* green */
-#define LED1_OFF				0x04	/* green */
-#define LED2_ON					0x01	/* yellow */
-#define LED2_OFF				0x05	/* yellow */
+#define LED1_ON	      	0x00	/* green */
+#define LED1_OFF	    	0x04	/* green */
+#define LED2_ON	      	0x01	/* yellow */
+#define LED2_OFF	    	0x05	/* yellow */
 
 /* inputs used by CMD_SET_AN */
-#define ADC_VPP					0x00
-#define ADC_VZ					0x01
+#define ADC_VPP	      	0x00
+#define ADC_VZ	      	0x01
 
 /* sockets used by CMD_SET_SOC */
-#define SOC_8_14				0x00
-#define SOC_18_ICSP				0x01
-#define SOC_ICSP				0x01
-#define SOC_28_40				0x02
-#define SOC_RUN					0xFE
-#define SOC_OFF					0xFF
+#define SOC_8_14	    	0x00
+#define SOC_18_ICSP	    	0x01
+#define SOC_ICSP	    	0x01
+#define SOC_28_40	    	0x02
+#define SOC_RUN	      	0xFE
+#define SOC_OFF	      	0xFF
 
 /* signals used by CMD_SET_SIGNAL */
-#define SIG_VDD_ON				0x01
-#define SIG_VDD_OFF				0x10
-#define SIG_VPP_ON				0x02
-#define SIG_VPP_OFF				0x20
-#define SIG_PGD_ON				0x04
-#define SIG_PGD_OFF				0x40
-#define SIG_PGC_ON				0x08
-#define SIG_PGC_OFF				0x80
+#define SIG_VDD_ON	    	0x01
+#define SIG_VDD_OFF	    	0x10
+#define SIG_VPP_ON	    	0x02
+#define SIG_VPP_OFF	    	0x20
+#define SIG_PGD_ON	    	0x04
+#define SIG_PGD_OFF	    	0x40
+#define SIG_PGC_ON	    	0x08
+#define SIG_PGC_OFF	    	0x80
 
 /* modes used by CMD_SET_DIR */
-#define DIR_PGD_INPUT				0x00
-#define DIR_PGD_OUTPUT				0x01
+#define DIR_PGD_INPUT	    	0x00
+#define DIR_PGD_OUTPUT	    	0x01
 
 /* cores used by CMD_SET_CORE */
-#define CORE_12					12
-#define CORE_14					14
-#define CORE_16					16
-#define CORE_17					17
-#define CORE_18					18
-#define CORE_30					30
-#define	CORE_33					33
+#define CORE_12	      	12
+#define CORE_14	      	14
+#define CORE_16	      	16
+#define CORE_17	      	17
+#define CORE_18	      	18
+#define CORE_30	      	30
+#define	CORE_33	      	33
 
 #define MODE_NORMAL             0x01	/* programmer in normal mode */
 #define MODE_BOOT               0x02	/* programmer in boot loader mode */
@@ -156,13 +156,13 @@ typedef union _BYTE
 #define	DEVICE_BOOT		0x01	// Bootloader
 #define	DEVICE_B9		0x03	// Brenner9
 
-#define TIMEOUT_WRITE			100
-#define TIMEOUT_READ			1000
+#define TIMEOUT_WRITE	  	100
+#define TIMEOUT_READ	  	1000
 
-#define USB_BLOCKSIZE			64
+#define USB_BLOCKSIZE	  	64
 #define CTRL_EEPROM_SIZE		0x100
 #define RES_CALIB_NEEDED		1
-#define CALIB_FIRST_TRY			18		/* value used as first estimate */
+#define CALIB_FIRST_TRY	  	18	  /* value used as first estimate */
 
 // Flags
 #define f_r	prog.flags1.b0
@@ -204,7 +204,7 @@ typedef union _BYTE
 // opcodes to put OSCCAL into Flash
 #define	MOVLW_12	0x0C00
 #define	RETLW_14	0x3400
-#define no_OSCCAL	0x1000		// value for no OSCCAL on comandline
+#define no_OSCCAL	0x1000	  // value for no OSCCAL on comandline
 
 class TPIC {
 public:
@@ -214,27 +214,27 @@ public:
 	uint16_t 	Config[24];
 };
 
-typedef struct {     		// 22 uint8_t
+typedef struct {         // 22 uint8_t
     int32_t	Nr;
     int32_t	Key;
-    uint32_t addr;	// 32 bit unsigned
+    uint32_t addr;  // 32 bit unsigned
   uint16_t	unused;
     int32_t	cfgbitsnr;
     int32_t	fieldNr;
 } TCfgbits;
 
-typedef struct {		//25 uint8_t
+typedef struct {    //25 uint8_t
     int32_t	Nr;
     int32_t	Key;
   uint16_t	mask;
     int32_t	desc;
-  uint8_t	flags;		//0:-  1:h  2:xh
+  uint8_t	flags;    //0:-  1:h  2:xh
   uint16_t	init;
     int32_t	fieldNr;
     int32_t	settingNr;
 } TField;
 
-typedef struct {		//20 uint8_t
+typedef struct {    //20 uint8_t
 		int32_t	Nr;
 	uint16_t	req;
 	uint16_t	value;
@@ -243,7 +243,7 @@ typedef struct {		//20 uint8_t
 		int32_t	checksum;
 } TSetting;
 
-typedef struct {		//12 uint8_t
+typedef struct {    //12 uint8_t
 		int32_t	Nr;
 	uint16_t	typ;
 	uint16_t	protstart;
@@ -252,33 +252,33 @@ typedef struct {		//12 uint8_t
 
 
 
-#pragma pack(push, 8)					/* set alignment to 8 -- really important */
+#pragma pack(push, 8)          /* set alignment to 8 -- really important */
 
 //Struktur of the database
 typedef struct {
 	char name[21];
-	__uint8_t cpu;
-	__uint8_t power;
-	__uint8_t fill1;	//unpacked
+	uint8_t cpu;
+	uint8_t power;
+	uint8_t fill1;  //unpacked
 	__int32_t config;
-	__uint8_t software;
-	__uint8_t fill2;	//unpacked
-	__uint8_t fill3;	//unpacked
-	__uint8_t fill4;	//unpacked
+	uint8_t software;
+	uint8_t fill2;  //unpacked
+	uint8_t fill3;  //unpacked
+	uint8_t fill4;  //unpacked
 	__int32_t blocksize;
-	__uint8_t pins;
+	uint8_t pins;
 	char ExtraStr[17];
-	__uint8_t fill5;	//unpacked
-	__uint8_t fill6;	//unpacked
+	uint8_t fill5;  //unpacked
+	uint8_t fill6;  //unpacked
 	__int32_t ExtraInt;
-	__uint8_t ExtraBool;
+	uint8_t ExtraBool;
 
 	struct {
-		__uint8_t io, adc, adctyp, uart, spi, i2c, can, usb, timer, compare,
+		uint8_t io, adc, adctyp, uart, spi, i2c, can, usb, timer, compare,
 			capture, pwm, ccp, eccp, ssp, ext;
-		__uint8_t fill7;	//unpacked
-		__uint8_t fill8;	//unpacked
-		__uint8_t fill9;	//unpacked
+		uint8_t fill7;  //unpacked
+		uint8_t fill8;  //unpacked
+		uint8_t fill9;  //unpacked
 	} interfaces;
 
 	struct {
@@ -290,29 +290,29 @@ typedef struct {
 	} vdd;
 
 	struct {
-		__uint8_t memtech, ovrpgm, tries;
-		__uint8_t fill10;	//unpacked
-		__uint8_t fill11;	//unpacked
-		__uint8_t fill12;	//unpacked
-		__uint8_t fill13;	//unpacked
-		__uint8_t fill14;	//unpacked
+		uint8_t memtech, ovrpgm, tries;
+		uint8_t fill10;  //unpacked
+		uint8_t fill11;  //unpacked
+		uint8_t fill12;  //unpacked
+		uint8_t fill13;  //unpacked
+		uint8_t fill14;  //unpacked
 		double lvpthresh;
-				__uint32_t panelsize;
-		__uint8_t fill15;	//unpacked
-		__uint8_t fill16;	//unpacked
-		__uint8_t fill17;	//unpacked
-		__uint8_t fill18;	//unpacked
-		__uint8_t fill19;	//unpacked
-		__uint8_t fill20;	//unpacked
+		uint32_t panelsize;
+		uint8_t fill15;  //unpacked
+		uint8_t fill16;  //unpacked
+		uint8_t fill17;  //unpacked
+		uint8_t fill18;  //unpacked
+		uint8_t fill19;  //unpacked
+		uint8_t fill20;  //unpacked
 	} pgming;
 
   struct {
-        __uint32_t pgm, lvpgm, eedata, cfg, userid, erase, lverase;
+        uint16_t pgm, lvpgm, eedata, cfg, userid, erase, lverase;
   } wait;
 
 	struct {
 		unsigned char pgm, eedata, userid, cfg, rowerase;
-		__uint8_t fill21;	//unpacked
+		uint8_t fill21;  //unpacked
 	} latches;
 
   struct {
@@ -340,18 +340,18 @@ typedef struct {
   } userid;
 
 	struct {
-		__uint32_t min, max;
-				__uint32_t idmask, id;
+		uint32_t min, max;
+				uint32_t idmask, id;
 	} devid;
 
 	struct {
-		__uint8_t flash, eeprom, id, config, erase, cp, read_eeprom;
+		uint8_t flash, eeprom, id, config, erase, cp, read_eeprom;
 	} taktik;
-	__uint8_t fill21;	//unpacked
-	__uint8_t fill22;	//unpacked
-	__uint8_t fill23;	//unpacked
-	__uint8_t fill24;	//unpacked
-	__uint8_t fill25;	//unpacked
+	uint8_t fill21;  //unpacked
+	uint8_t fill22;  //unpacked
+	uint8_t fill23;  //unpacked
+	uint8_t fill24;  //unpacked
+	uint8_t fill25;  //unpacked
 
 } TPicDef;
 
@@ -394,7 +394,7 @@ typedef struct T_PICtype // 9 + 7 + 5 + 14 = 35 uint8_t
 {
 	uint8_t	cpu;
 	uint8_t	power;
-// 		uint32_t blocksize;
+//   	uint32_t blocksize;
 	uint16_t	blocksize;
 	uint8_t	pins;
 	uint8_t	vpp;
@@ -415,8 +415,8 @@ struct programmer {
     int32_t usbmode;
     int32_t mode;
 
-    int32_t fw;			// version (e.g. firmwareversion)
-    int32_t device;		// device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
+    int32_t fw;      // version (e.g. firmwareversion)
+    int32_t device;    // device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
   char usb_name[64];
   unsigned char supp;
 
@@ -425,17 +425,17 @@ struct programmer {
 	double vdd;
 
 		int32_t in_calibration, block_timer;
-	char VppLoopMode;	//0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
+	char VppLoopMode;  //0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
 	unsigned char socket, core;
 
-	double d_Uz;		//Referenzspannung Z-Diode
-	double d_DIV;		//VppSpannungsteiler
+	double d_Uz;    //Referenzspannung Z-Diode
+	double d_DIV;    //VppSpannungsteiler
 	double d_gain_off;
 	double d_pwm0v_off;
 	double d_gain_on;
 	double d_pwm0v_on;
-	double d_Vusb_cal;	// Betriebsspannung bei kalibrierung
-	double d_korr;		//Ukor
+	double d_Vusb_cal;  // Betriebsspannung bei kalibrierung
+	double d_korr;    //Ukor
 	float U00_off;
 	float U00_on;
 	BYTE flags1;
@@ -451,7 +451,7 @@ struct programmer {
   uint16_t chipid;
   uint16_t revision;
 
-	TPicDef pic;		// alles über den PIC fuer den Brenner
+	TPicDef pic;    // alles über den PIC fuer den Brenner
 	TPIC HexIn, HexOut;
 	uint16_t Calmem[40000];
 	char calmemsaved;
@@ -460,7 +460,7 @@ struct programmer {
 	char picname[21];
 	char OsccalString[10];
 	uint16_t OsccalRom;
-		int32_t OsccalPar;		// OSCCAL-valu from komandline option, cvan be negative vor PIC10F
+		int32_t OsccalPar;    // OSCCAL-valu from komandline option, cvan be negative vor PIC10F
 	uint16_t BGmask;
 		int32_t BGadr;
 	uint16_t BGvalue;
@@ -529,9 +529,9 @@ int32_t firm_boot_off(void);
 
 
 /* calibration.c */
-int32_t cal_step3(void);			// Messung der PWM-Regelsteilheit
-int32_t cal_write_data(void);		// write calibration data to control PIC
-int32_t cal_read_data(void);		// read calibration data from control PIC
+int32_t cal_step3(void);      // Messung der PWM-Regelsteilheit
+int32_t cal_write_data(void);    // write calibration data to control PIC
+int32_t cal_read_data(void);    // read calibration data from control PIC
 
 int32_t vpp_loop_on(int32_t mode);
 int32_t vpp_loop_off(void);
@@ -546,8 +546,8 @@ int32_t vpp_setVpp(float VppSoll);
 /* database.c */
 int32_t db_lookup_pic(void);
 int32_t db_findpicname(TPicDef& pic);
-int32_t db_listpics(__uint8_t software);
-int32_t db_findpicid(__uint32_t picid, TPicDef& pic);
+int32_t db_listpics(uint8_t software);
+int32_t db_findpicid(uint16_t picid, TPicDef& pic);
 int32_t db_load_db(void);
 uint16_t db_getdefConfMask(int32_t adr);
 void db_find_BG(void);
