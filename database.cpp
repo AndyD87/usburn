@@ -27,9 +27,8 @@
  * this file contains everything to use the pic-database-files
  * the following functions can be called from outside:
  *
- * int32_t db_lookup_pic(void);
  * int32_t db_findpicname(TPicDef& pic);
- * int32_t db_listpics(uint8_t software);
+ * int32_t db_listpics();
  * int32_t db_findpicid(uint16_t picid, TPicDef& pic);
  * int32_t db_load_db(void);
  * uint16_t db_getdefConfMask(int32_t adr);
@@ -53,7 +52,7 @@
 
 using namespace std;
 
-//ACHTUNG hier liegt das Limit für die Databasegrösse !!
+//ACHTUNG hier liegt das Limit fuer die Databasegroesse !!
 //atention: this limits the possible size of the database !!
 TPicDef   CfPIC[P_filesize];    //  800 x 216 =  167 k
 TCfgbits  CfCfgbits[C_filesize];  // 6000 x  22 =  132 k
@@ -61,12 +60,12 @@ TField    CfField[F_filesize];    //20000 x  25 =  488 k
 TSetting  CfSetting[S_filesize];  //60000 x  20 = 1172 k
 //TChecksum Cfchecksum[4000];    // 4000 x  12 =   47 k
 
-int	EfPIC      = 0;
-int	EfCfgbits  = 0;
-int	EfField    = 0;
-int	EfSetting  = 0;
-int	Efchecksum = 0;
-int	Etex       = 0;
+int32_t	EfPIC      = 0;
+int32_t	EfCfgbits  = 0;
+int32_t	EfField    = 0;
+int32_t	EfSetting  = 0;
+int32_t	Efchecksum = 0;
+int32_t	Etex       = 0;
 
 TCfgbits	Cfgbits;
 TField		Field;
@@ -75,18 +74,29 @@ TField		Field;
 //********************************************************************************************************************
 // Hilsroutinen
 //********************************************************************************************************************
-
 // wandelt die Strins aus der Pascal-Darstellung ins C-Format
 // converts Pascal-strings into C-strings
 void stringconvert(TPicDef& pic)
 {
 	char k = pic.name[0];
-	char l;
-	if (k<21) for (l=0; l<k; l++) pic.name[l]=pic.name[l+1];
+	unsigned char l = 0;
+	if (k<21)
+	{
+		for (; l<k; l++)
+		{
+			pic.name[l]=pic.name[l+1];
+		}
+	}
 	pic.name[l]=0;
 
 	k = pic.ExtraStr[0];
-	if (k<17) for (l=0; l<k; l++) pic.ExtraStr[l]=pic.ExtraStr[l+1];
+	if (k<17)
+	{
+		for (l=0; l<k; l++)
+		{
+			pic.ExtraStr[l]=pic.ExtraStr[l+1];
+		}
+	}
 	pic.ExtraStr[l]=0;
 }
 
@@ -186,9 +196,13 @@ int32_t db_findpicid(uint16_t picid, TPicDef& pic)
 
 
 
-// Auflistung aller PICs der Database, die sich mit der Firmware brennen lassen
-// lists all PICs, that can be programmed with the used firmware
-int32_t db_listpics(uint8_t software)
+//
+/**
+ * @brief Auflistung aller PICs der Database, die sich mit der Firmware brennen lassen
+ *        lists all PICs, that can be programmed with the used firmware
+ * @return
+ */
+int32_t db_listpics()
 {
 	FILE *fdatei;
 	fdatei = fopen(P_filename, "r");
@@ -227,45 +241,8 @@ int32_t db_listpics(uint8_t software)
 	return(0);
 }
 
-
-
-// check if database is existing
-int32_t db_lookup_pic(void)
-{
-
-	FILE *fdatei;
-	fdatei = fopen(P_filename, "r");
-	if (fdatei != NULL) fprintf(stdout, "Database detected \n");
-	else 
-  {    
-  	fprintf(stderr, "## missing Database - end program\n");
-  	return(1);
-  }
-
-	TPicDef pic;
-	int32_t picSize = sizeof(pic);
-  //fprintf(stdout, " Datensatzlänge %d \n", picSize);
-
-	fread (&pic, picSize, 1, fdatei);
-	fprintf(stdout, " Name %s \n", pic.name);
-	stringconvert(pic);
-	fprintf(stdout, " Name %s \n", pic.name);
-
-	fread (&pic, picSize, 1, fdatei);
-	stringconvert(pic);
-	fprintf(stdout, " Name %s \n", pic.name);
-
-	fread (&pic, picSize, 1, fdatei);
-	stringconvert(pic);
-	fprintf(stdout, " Name %s \n", pic.name);
-
-	fclose(fdatei);
-};
-
-
-
 // load the database into memory
-//öffnen aller nötigen files
+//oeffnen aller noetigen files
 //im Fehlerfall wird der name des fehlenden files ausgegeben
 int32_t db_load_db(void)
 {
@@ -342,8 +319,8 @@ int32_t db_load_db(void)
 }
 
 
-//übergibt die field mit der Nummer nr
-//falls keine passende field gefunden wird, dann wird im result.Nr=0 übergeben
+//uebergibt die field mit der Nummer nr
+//falls keine passende field gefunden wird, dann wird im result.Nr=0 uebergeben
 TField db_getFieldNr(int32_t nr)
 {
 	TField result;
@@ -357,8 +334,8 @@ TField db_getFieldNr(int32_t nr)
 }
 
 
-//übergibt die cfgbits mit der Nummer nr
-//falls keine passende cfgbits gefunden wird, dann wird im result.Nr=0 übergeben
+//uebergibt die cfgbits mit der Nummer nr
+//falls keine passende cfgbits gefunden wird, dann wird im result.Nr=0 uebergeben
 TCfgbits db_getCfgbitsNr(int32_t nr)
 {
 	TCfgbits result;
@@ -369,21 +346,28 @@ TCfgbits db_getCfgbitsNr(int32_t nr)
 	return result;
 }
 
-
-//übergibt die cfgbits zum PIC mit der Adresse adr
-//falls keine passende cfgbits gefunden wird, dann wird im result.Nr=0 übergeben
-TCfgbits db_getCfgbitsAdr(int32_t adr)
+/**
+ * @brief Uebergibt die cfgbits zum PIC mit der Adresse adr
+ *        falls keine passende cfgbits gefunden wird, dann wird im result.Nr=0 uebergeben
+ * @param adr
+ * @return
+ */
+TCfgbits db_getCfgbitsAdr(uint32_t adr)
 {
 	TCfgbits result;
 	result = db_getCfgbitsNr(prog.pic.config);
-	while ((result.addr != adr) & (result.cfgbitsnr > 0))  result = db_getCfgbitsNr(result.cfgbitsnr);
-	if (result.addr != adr) result.Nr = 0;
+	while ((result.addr != adr) & (result.cfgbitsnr > 0))
+	{
+		result = db_getCfgbitsNr(result.cfgbitsnr);
+	}
+	if (result.addr != adr)
+		result.Nr = 0;
 	return result;
 }
 
 
 //ermittelt die zur Adresse passende Configmaske
-// dh. alle Bits die auf 1 gesetzt werden können
+// dh. alle Bits die auf 1 gesetzt werden koennen
 uint16_t db_getdefConfMask(int32_t adr)
 {
 	uint16_t result = 0;
@@ -404,7 +388,7 @@ uint16_t db_getdefConfMask(int32_t adr)
       }
       //unused bits der Config stehen nicht immer auf 1 (z.B. 16F630)
       //man braucht sie aber nicht zu vergleichen
-      //deshalb entfällt die nächste Zeile
+      //deshalb entfaellt die naechste Zeile
       //result:=result or Cfgbits.unused;
     }
   }
@@ -412,7 +396,7 @@ uint16_t db_getdefConfMask(int32_t adr)
 }
 
 
-// findet die passende Config-Adresse und Bitmaske für BG
+// findet die passende Config-Adresse und Bitmaske fuer BG
 void db_find_BG(void)
 {
 	int32_t adr;

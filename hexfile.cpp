@@ -85,8 +85,8 @@ char int2char(int32_t zeichen)
 
 
 
-//wandelt eine int-zahl in einen 2-stelligen hex-string um
-string hex2str(int32_t zahl)
+//wandelt eine int8-zahl in einen 2-stelligen hex-string um
+string hex2str(uint8_t zahl)
 {
 	string s;
 	s =  int2char(zahl >> 4);
@@ -94,29 +94,36 @@ string hex2str(int32_t zahl)
 	return(s);
 }
 
-
-//wandelt 16-Bit in eines string lsb first
+/**
+ * @brief wandelt 16-Bit in eines string lsb first
+ * @param zeiger: Der umzuwandelnde integer
+ * @param sum:    checksum to update
+ * @return string with 2 hex signes
+ */
 string zweiByte(int32_t zeiger, int32_t &sum)
 {
-    int32_t wert = 0;
-    int32_t Adrr = zeiger;
-    int32_t teil;
+  int32_t wert = 0;
+  int32_t Adrr = zeiger;
+  int8_t teil;
 	string s = "";
 	if ((zeiger >= 0x000000) && (zeiger <= 0x02ABFF)) wert = prog.HexOut.Flash[Adrr];
 	if ((zeiger >= 0xF80000) && (zeiger <= 0xF8000D)) wert = prog.HexOut.Config[Adrr-0xF80000];
 	if ((zeiger >= 0x7FF000) && (zeiger <= 0x7FFFFF)) wert = prog.HexOut.ROM[Adrr-0x7FF000];
   //LSB first
-	teil = wert & 0x00FF;
+  teil = static_cast<uint8_t>(wert);
 	sum = sum + teil;
 	s = s + hex2str(teil);
-	teil = (wert & 0xFF00) >> 8;
+	teil = static_cast<uint8_t>(wert  >> 8);
 	sum = sum + teil;
 	s = s + hex2str(teil);
 	return(s);
 }
 
-
-// liefert die Adressen fuer ID-Zellen
+/**
+ * @brief liefert die Adressen fuer ID-Zellen
+ * @param adr: TBD
+ * @return TBD
+ */
 int32_t idNr(int32_t adr)
 {
 	if ((adr >=   0x2000) && (adr <=   0x2004)) return(adr -   0x2000);  // 14
@@ -143,7 +150,7 @@ int32_t confNr(int32_t adr)
 uint16_t PICzelle(int32_t adr)  //, unsigned char core)
 {
 	unsigned char core = prog.core;
-    int32_t buffer;
+	int32_t buffer;
 	buffer = 0;
 	switch (core)
   {
@@ -181,20 +188,20 @@ uint16_t getleerwert(int32_t adr)
 	uint16_t result = 0x3FFF;
 	switch (prog.core)
   {
-	case CORE_12:
-  	result = 0x0FFF;
-  	if ((adr>=prog.pic.pgmmem.min) &&  (adr<=prog.pic.pgmmem.max)) result = 0x0FFF; //Flash
-  	if ((adr>=prog.pic.userid.min) &&  (adr<=prog.pic.userid.max)) result = 0x000F;  //ID
-  	if ((adr>=prog.pic.cfgmem.min) &&  (adr<=prog.pic.cfgmem.max)) result = 0x0FFF;  //Config
-  	if ((adr>=prog.pic.eedata.min) &&  (adr<=prog.pic.eedata.max)) result = 0x00FF;  //EEPROM
-	break;
-	case CORE_14:
-  	result = 0x3FFF;
-  	if ((adr >= 0x0000) && (adr <=0x1FFF)) result = 0x3FFF;  // flash
-  	if ((adr >= 0x2000) && (adr <=0x2003)) result = 0x000F;  // id
-  	if ((adr >= 0x2004) && (adr <=0x200A)) result = 0x3FFF;  // debug, config
-  	if ((adr >= 0x2100) && (adr <=0x21FF)) result = 0x00FF;  // eeprom
-	break;
+    case CORE_12:
+      result = 0x0FFF;
+      if ((adr>=prog.pic.pgmmem.min) &&  (adr<=prog.pic.pgmmem.max)) result = 0x0FFF; //Flash
+      if ((adr>=prog.pic.userid.min) &&  (adr<=prog.pic.userid.max)) result = 0x000F;  //ID
+      if ((adr>=prog.pic.cfgmem.min) &&  (adr<=prog.pic.cfgmem.max)) result = 0x0FFF;  //Config
+      if ((adr>=prog.pic.eedata.min) &&  (adr<=prog.pic.eedata.max)) result = 0x00FF;  //EEPROM
+      break;
+    case CORE_14:
+      result = 0x3FFF;
+      if ((adr >= 0x0000) && (adr <=0x1FFF)) result = 0x3FFF;  // flash
+      if ((adr >= 0x2000) && (adr <=0x2003)) result = 0x000F;  // id
+      if ((adr >= 0x2004) && (adr <=0x200A)) result = 0x3FFF;  // debug, config
+      if ((adr >= 0x2100) && (adr <=0x21FF)) result = 0x00FF;  // eeprom
+      break;
   }
 	return(result);
 }
@@ -209,11 +216,11 @@ uint16_t getleerwert(int32_t adr)
 // Schreiben von prog.HexOut in ein Hex-File fuer 12-Bit-Kern-PICs -Unterroutine
 int32_t savehex12(int32_t anfang, int32_t ende)
 {
-  	string s;
-    int32_t bytezahl;
-    int32_t adressex2;
-    int32_t sum;
-    int32_t zeiger = anfang;
+  string s;
+  int32_t bytezahl;
+  int32_t adressex2;
+  int32_t sum;
+  int32_t zeiger = anfang;
 	uint16_t leerwert;
 
       leerwert = getleerwert(zeiger);
@@ -226,14 +233,16 @@ int32_t savehex12(int32_t anfang, int32_t ende)
   	sum = 0;
   	s = "";
     // suche naechste Zelle mit Daten
-  	while (((PICzelle(zeiger) & leerwert) == leerwert) && (zeiger <= ende)) zeiger++;
-  	if (zeiger > ende) return(0); //keine Daten mehr
+    while(((PICzelle(zeiger) & leerwert) == leerwert) && (zeiger <= ende))
+      zeiger++;
+    if(zeiger > ende)
+      return(0); //keine Daten mehr
   	adressex2 = zeiger * 2;
 
-  	while (((PICzelle(zeiger) & leerwert) != leerwert) && 
-      (zeiger <= ende) &&
-      (((zeiger % 0x08) !=0) || (bytezahl == 0)) && 
-      (bytezahl < 0x10) )
+    while(((PICzelle(zeiger) & leerwert) != leerwert) &&
+          (zeiger <= ende) &&
+          (((zeiger % 0x08) !=0) || (bytezahl == 0)) &&
+          (bytezahl < 0x10) )
     {
     	s = s + hex2str(PICzelle(zeiger) % 256) + hex2str(PICzelle(zeiger) / 256);
     	sum = sum + (PICzelle(zeiger) % 256) + (PICzelle(zeiger) / 256);
@@ -268,13 +277,13 @@ int32_t savehex14(int32_t anfang, int32_t ende)
 	while (((PICzelle(ende) && leerwert) == leerwert) && (anfang < ende)) ende--;
 	if (anfang == ende) return(0);
 
-  //while loop wird für jede Zeile im HEX-File durchlaufen
+	//while loop wird fuer jede Zeile im HEX-File durchlaufen
 	while (zeiger <= ende)
   {
   	bytezahl = 0;
   	sum = 0;
   	s = "";  
-    // suche nächste Zelle mit Daten
+    // suche naechste Zelle mit Daten
   	while (((PICzelle(zeiger) && leerwert) == leerwert) && (zeiger <= ende)) zeiger++;
   	if (zeiger <= ende)
     {
@@ -304,12 +313,11 @@ int32_t savehex14(int32_t anfang, int32_t ende)
 // Schreiben von prog.HexOut in ein Hex-File fuer 16-Bit-Kern-PICs -Unterroutine
 int32_t savehex16(int32_t anfang, int32_t ende)
 {
-  	string s;
-    int32_t bytezahl;
-    int32_t adressex2;
-    int32_t sum;
-    int32_t zeiger = anfang;
-	uint16_t leerwert;
+  string s;
+  int32_t bytezahl;
+  int32_t adressex2;
+  int32_t sum;
+  int32_t zeiger = anfang;
 
 	while (zeiger < ende)
   {
@@ -565,14 +573,14 @@ uint16_t ReadByte(void)
 // Lesen eines 16-Bit Wertes aus dem HEX-File - big endian
 uint16_t ReadWord(void)
 {
-	uint16_t w = (ReadByte() << 8) + ReadByte();
+	return (ReadByte() << 8) + ReadByte();
 }
 
 
 // Lesen eines 16-Bit Wertes aus dem HEX-File - little endian
 uint16_t ReadWordLH(void)
 {
-	uint16_t w = ReadByte() + (ReadByte() << 8);
+	return ReadByte() + (ReadByte() << 8);
 }
 
 
@@ -592,15 +600,14 @@ uint32_t Wortlesen24(void)
 // Lesen eines HEX-Files fuer 12-Bit-Kern-PICs
 void OpenHexFile12(void)
 {
-	char ch;
 	prog.EndFlash = 0;
 	prog.EndEE    = -1;
-    int32_t ULBA      = 0;
-    int32_t SBA       = 0;
+	int32_t ULBA      = 0;
+	int32_t SBA       = 0;
 	uint16_t ByteAnzahl;
 	uint16_t HexTyp;
-    int32_t Adresse;
-    int32_t Pointer;
+	int32_t Adresse;
+	int32_t Pointer;
 
 	do
   {
@@ -611,40 +618,39 @@ void OpenHexFile12(void)
 
   	switch (HexTyp)
     {
-  	case 0:
-            for (int32_t k=0; k<=(ByteAnzahl / 2)-1; k++)
-      {
-      	Pointer = (ULBA * 0x10000) + (SBA * 0x10) + Adresse;  
-      	Pointer = Pointer / 2;  
-      	Pointer = Pointer + k;
-        // Daten nach Hexin schreiben
-        // Flash
-      	if      ((Pointer >= prog.pic.pgmmem.min) && (Pointer <= prog.pic.pgmmem.max)) 
+      case 0:
+        for (int32_t k=0; k<=(ByteAnzahl / 2)-1; k++)
         {
-        	prog.HexIn.Flash[Pointer] = ReadWordLH();
-        	if (Pointer > prog.EndFlash) prog.EndFlash = Pointer;
+          Pointer = (ULBA * 0x10000) + (SBA * 0x10) + Adresse;
+          Pointer = Pointer / 2;
+          Pointer = Pointer + k;
+          // Daten nach Hexin schreiben
+          // Flash
+          if      ((Pointer >= prog.pic.pgmmem.min) && (Pointer <= prog.pic.pgmmem.max))
+          {
+            prog.HexIn.Flash[Pointer] = ReadWordLH();
+            if (Pointer > prog.EndFlash) prog.EndFlash = Pointer;
+          }
+          else if ((Pointer >= prog.pic.userid.min) && (Pointer <= prog.pic.userid.max)) prog.HexIn.ID[idNr(Pointer)] = ReadWordLH();   // USERID
+          else if ((Pointer >= prog.pic.cfgmem.min) && (Pointer <= prog.pic.cfgmem.max)) prog.HexIn.Config[confNr(Pointer)] = ReadWordLH();// Config
+          else if ((Pointer >= prog.pic.eedata.min) && (Pointer <= prog.pic.eedata.max))                // EEPROM
+          {
+             prog.HexIn.ROM[Pointer-prog.pic.eedata.min] = ReadWordLH() & 0x00FF;
+            if ((Pointer-prog.pic.eedata.min) > prog.EndEE) prog.EndEE = Pointer- prog.pic.eedata.min;
+          }
         }
-      	else if ((Pointer >= prog.pic.userid.min) && (Pointer <= prog.pic.userid.max)) prog.HexIn.ID[idNr(Pointer)] = ReadWordLH();   // USERID
-      	else if ((Pointer >= prog.pic.cfgmem.min) && (Pointer <= prog.pic.cfgmem.max)) prog.HexIn.Config[confNr(Pointer)] = ReadWordLH();// Config
-      	else if ((Pointer >= prog.pic.eedata.min) && (Pointer <= prog.pic.eedata.max))                // EEPROM
-        {
-           prog.HexIn.ROM[Pointer-prog.pic.eedata.min] = ReadWordLH() & 0x00FF;
-        	if ((Pointer-prog.pic.eedata.min) > prog.EndEE) prog.EndEE = Pointer- prog.pic.eedata.min;
-        }
-      }
-  	break;
-
-  	case 2:
-    	SBA = ReadWord();  //Extended Segment Address Record
-  	break;
-
-  	case 4:
-    	ULBA = ReadWord();  //Extended Linear Address Record
-  	break;
+        break;
+      case 2:
+        SBA = ReadWord();  //Extended Segment Address Record
+        break;
+      case 4:
+        ULBA = ReadWord();  //Extended Linear Address Record
+        break;
     }
 
     //zur naechsten Zeile gehen
-  	while ((fgetc(indatei) != 0x0A) && !feof(indatei));
+    while ((fgetc(indatei) != 0x0A) && !feof(indatei))
+      {}
   } while ((HexTyp != 1) && !feof(indatei));
 }
 
@@ -653,15 +659,14 @@ void OpenHexFile12(void)
 // Lesen eines HEX-Files fuer 14-Bit-Kern-PICs
 void OpenHexFile14(void)
 {
-	char ch;
 	prog.EndFlash = 0;
 	prog.EndEE    = -1;
-    int32_t ULBA      = 0;
-    int32_t SBA       = 0;
+	int32_t ULBA      = 0;
+	int32_t SBA       = 0;
 	uint16_t ByteAnzahl;
 	uint16_t HexTyp;
-    int32_t Adresse;
-    int32_t Pointer;
+	int32_t Adresse;
+	int32_t Pointer;
 
 	do
   {
@@ -711,7 +716,6 @@ void OpenHexFile14(void)
 // Lesen eines HEX-Files fuer 16-Bit-Kern-PICs
 void OpenHexFile16(void)
 {
-	char ch;
 	prog.EndFlash = 0;
 	prog.EndEE    = -1;
     int32_t ULBA      = 0;
@@ -772,7 +776,6 @@ void OpenHexFile16(void)
 // Lesen eines HEX-Files fuer 24-Bit-Kern-PICs
 void OpenHexFile30(void)
 {
-	char ch;
 	prog.EndFlash = 0;
 	prog.EndEE    = -1;
     int32_t ULBA      = 0;
@@ -889,6 +892,3 @@ int32_t openhexfile(void)
   }
 	return(0);
 }
-
-
-

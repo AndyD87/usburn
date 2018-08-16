@@ -369,14 +369,14 @@ typedef struct T_taktik  // 7 uint8_t
 	uint8_t	cp;
 	uint8_t	read_eeprom;
 } T_taktik;
-typedef struct T_latches // Schreibpuffergrößen in uint8_t
+typedef struct T_latches // Schreibpuffergroeßen in uint8_t
 												 // 5 uint8_t
 {
 	uint8_t	pgm ;
 	uint8_t	eedata;
 	uint8_t	userid;
 	uint8_t	cfg;
-	uint8_t	rowerase;    // Löschbereich
+	uint8_t	rowerase;    // Loeschbereich
 																										// in uint8_t
 } T_latches;
 typedef struct T_wait    // alle Brenn-Zeiten in Mikrosekunden
@@ -451,7 +451,7 @@ struct programmer {
   uint16_t chipid;
   uint16_t revision;
 
-	TPicDef pic;    // alles über den PIC fuer den Brenner
+	TPicDef pic;    // alles ueber den PIC fuer den Brenner
 	TPIC HexIn, HexOut;
 	uint16_t Calmem[40000];
 	char calmemsaved;
@@ -490,7 +490,7 @@ int32_t programmer_command(unsigned char *data_in, int32_t datasz, unsigned char
 
 int32_t prog_get_version(void);
 int32_t prog_set_led(unsigned char led);
-int32_t prog_get_supported(void);
+void prog_get_supported(void);
 int32_t prog_read_adc(void);
 int32_t prog_set_an(unsigned char an);
 int32_t prog_set_signal(unsigned char signal);
@@ -501,15 +501,15 @@ int32_t prog_write_eedata(int32_t start, unsigned char *src, int32_t length);
 int32_t prog_reset(void);
 int32_t prog_read_chipid(void);
 int32_t prog_set_address(int32_t start, int32_t stop);
-int32_t EraseTPIC(TPIC & PIC);
+void EraseTPIC(TPIC & PIC);
 int32_t prog_read_flash(int32_t start, int32_t stop);
 int32_t prog_read_calmem(int32_t start, int32_t stop);
 int32_t prog_read_ee(int32_t start, int32_t stop);
 int32_t prog_read_ID(void);
 int32_t prog_read_CONFIG(void);
 int32_t prog_check_firmware(void);
-int32_t prog_write_flash(int32_t start, int32_t stop);
-int32_t prog_write_ee(int32_t start, int32_t stop);
+int32_t prog_write_flash();
+int32_t prog_write_ee();
 int32_t prog_write_config(void);
 int32_t prog_write_id(void);
 int32_t prog_erase(void);
@@ -531,7 +531,7 @@ int32_t firm_boot_off(void);
 /* calibration.c */
 int32_t cal_step3(void);      // Messung der PWM-Regelsteilheit
 int32_t cal_write_data(void);    // write calibration data to control PIC
-int32_t cal_read_data(void);    // read calibration data from control PIC
+void cal_read_data(void);    // read calibration data from control PIC
 
 int32_t vpp_loop_on(int32_t mode);
 int32_t vpp_loop_off(void);
@@ -540,13 +540,12 @@ float vpp_getADC(int32_t kanal, int32_t zyklen);
 float vpp_getVoltage(int32_t kanal, int32_t Zyklen);
 float vpp_getVpp(void);
 float vpp_getVpp_stable(void);
-int32_t vpp_setVpp(float VppSoll);
+void vpp_setVpp(float VppSoll);
 
 
 /* database.c */
-int32_t db_lookup_pic(void);
 int32_t db_findpicname(TPicDef& pic);
-int32_t db_listpics(uint8_t software);
+int32_t db_listpics();
 int32_t db_findpicid(uint16_t picid, TPicDef& pic);
 int32_t db_load_db(void);
 uint16_t db_getdefConfMask(int32_t adr);
@@ -554,7 +553,7 @@ void db_find_BG(void);
 
 
 /* hexfile.c */
-string hex2str(int32_t zahl);
+string hex2str(uint8_t zahl);
 int32_t idNr(int32_t adr);
 int32_t confNr(int32_t adr);
 uint16_t PICzelle(int32_t adr);

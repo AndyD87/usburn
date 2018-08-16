@@ -52,8 +52,8 @@ int32_t cal_pruefsumme(int32_t anfang, int32_t ende, unsigned char *dst)
 // messung der PWM-Regelsteilheit
 int32_t cal_step3(void)
 {
-  float U10, Uhigh, U00;
-    int32_t pwm;
+  float U10, Uhigh;
+  int32_t pwm;
   char mode1ok;   //Boolean;
   char calok = true;
 
@@ -143,9 +143,7 @@ int32_t cal_step3(void)
 // Kalibrierdaten im EEPROM speichern
 int32_t cal_write_data(void)
 {
-	float v;
-
-//	prog.d_Vusb_cal = cal_Kalibrierespannung();  // liefert aktuelle USB-Spannung
+  // prog.d_Vusb_cal = cal_Kalibrierespannung();  // liefert aktuelle USB-Spannung
   // alles REAL-Werte -> 8 uint8_t  x 7 = 56 uint8_t (double)
   // Referenzspannung;
   // VppSpannungsteiler;
@@ -156,9 +154,7 @@ int32_t cal_write_data(void)
   // Vusb
 
   unsigned char buf[USB_BLOCKSIZE];
-    int32_t start = 0;
-    int32_t length = 57;
-    for (int32_t k=0; k<=60; k++) buf[k] = 0;
+  for (int32_t k=0; k<=60; k++) buf[k] = 0;
 
 	memcpy(&buf,     &prog.d_Uz,        8);  //Referenzspannung
 	memcpy(&buf[8],  &prog.d_DIV,       8);  //VppSpannungsteiler
@@ -180,7 +176,7 @@ int32_t cal_write_data(void)
 
 
 // Kalibrierdaten aus Steuer-EEPROM auslesen
-int32_t cal_read_data(void)
+void cal_read_data(void)
 {
   // Steuer-EEPROM auslesen
   //Sollwerte
@@ -225,7 +221,7 @@ int32_t cal_read_data(void)
   }
 	else fprintf(stderr,"## no calibration data\n");
 
-/*
+#ifdef DEBUG
   //anzeigen zum test
 	if (f_i)
   {
@@ -236,7 +232,7 @@ int32_t cal_read_data(void)
     }
   	fprintf(stdout, "\n");
   }
-*/
+#endif
 }
 
 
@@ -349,8 +345,6 @@ float vpp_getADC(int32_t kanal, int32_t zyklen)
 float vpp_getVoltage(int32_t kanal, int32_t Zyklen)
 {
   float Volt;
-    int32_t k;
-    int32_t count;
   float Result = -1;
   //Messen der Spannung
   Volt = vpp_getADC(kanal, Zyklen);
@@ -361,7 +355,7 @@ float vpp_getVoltage(int32_t kanal, int32_t Zyklen)
     Result = Volt;
   };
   return Result;
-}; //getVoltage
+} // vpp_getVoltage
 
 
 
@@ -369,8 +363,8 @@ float vpp_getVoltage(int32_t kanal, int32_t Zyklen)
 float vpp_getVpp(void)
 {
   // kanal0 4 Messungen a 15 ms +60 ms
-	return (vpp_getVoltage(0, 4) * prog.d_DIV); //3.1;
-};
+  return (vpp_getVoltage(0, 4) * prog.d_DIV); //3.1
+}
 
 
 
@@ -394,12 +388,13 @@ float vpp_getVpp_stable(void)
 	return U1;
 }
 
-
-
-//einstellen einer Programmierspannung
-//dabei muss pwm begrenzt werden auf 10 .. 70
-// pwm=120 entspricht 100%
-int32_t vpp_setVpp(float VppSoll)
+/**
+ * @brief Einstellen einer Programmierspannung
+ *        dabei muss pwm begrenzt werden auf 10 .. 70
+ *        pwm=120 entspricht 100%;
+ * @param VppSoll: new Vpp value to set
+ */
+void vpp_setVpp(float VppSoll)
 {
     int32_t	pwm;
     int32_t	pwm_on;
@@ -413,92 +408,110 @@ int32_t vpp_setVpp(float VppSoll)
     int32_t	cross;
   float	pwm_cor;
     int32_t	ADCsoll;
-  if (prog.device != DEVICE_B8) return 0;    // Brenner9
-  if (VppSoll < 5) return 0;      //3V-PIC
-
-	if (fabs(vpp_getVpp()-VppSoll) < 0.2) return 0; // gut genug
-	vpp_loop_off();
-	if ((VppSoll > 14) || (VppSoll < 8.5))
+  if (prog.device != DEVICE_B8 ) // Brenner9
   {
-  	fprintf(stderr, "## Vpp-soll: out of range   ");
-  	return 0;
-    };
-  // Theorie:
-  // Uout = Uin *  (Ton + Toff) / Toff
-  //      = 4,7V * 120 /(120-pwm)
-  //
-    // 1V entspricht einer PWM-Aenderung um 2,6
-    // 1V entspricht einer PWM-Aenderung um 5,8 unter Last
-
-  // korrekturwert, da Betriebsspannung bei der Kalibrierung anders war
-	pwm_cor = 1;
-  // Vusb_cal:=4.75;
-  // if Vusb_cal>4 then pwm_cor:=Vusb/Vusb_cal;
-	pwm_cor = pwm_cor * pwm_cor;
-
-	pwm_off = d2c(VppSoll * prog.d_gain_off /pwm_cor - prog.d_pwm0v_off);
-	pwm_on  = d2c(VppSoll * prog.d_gain_on  /pwm_cor - prog.d_pwm0v_on - 0.5);
-
-	pwm = pwm_off;
-  //failsafe
-	if (pwm < 0)      pwm    =   0;
-	if (pwm > 100)    pwm    = 100;
-	if (pwm_on < 0)   pwm_on =   0;
-	if (pwm_on > 100) pwm_on = 100;
-
-	if (f_i) fprintf(stdout, "PWM= %d  PWM_on= %d\n", pwm, pwm_on);
-	prog_set_pwm( pwm,  pwm_on);
-
-  // im Mode 1 wird mit einem festen PWM von 192/4=48 gearbeitet -> 40% -> 4us_on  6us_off
-    // das reicht fuer 18,3V ohne Last und 14,2V mit Last
-
-	if (prog.VppLoopMode > 1)
-  {
-  	sleepms(200);
-
-  	Vist = vpp_getVpp_stable();
-  	if (f_i) fprintf(stdout, "Vpp-mess: %f V \n", Vist);
-  	Versuche = 0;
-  	step = 2;
-  	cross = 2;    //Sollwert darf maximal 2 mal durchgangen werden
-  	while ((fabs(Vist-VppSoll) > 0.2) && (fabs(step) >= 1) && (Versuche < 20) && (pwm > 5) && (pwm < 70) && (cross > 0))
-    {
-    	Versuche++;
-      //pwm kann schnell steigen, aber soll langsam fallen
-    	Uerr = VppSoll-Vist;
-          	step = (int32_t)floor(Uerr * prog.d_gain_off +0.5);
-          	if (step >= 0) step_s = (int32_t)floor(step * 0.8 + 0.5);    // >  0 : schneller Anstieg
-          	else if (step < -5)  step_s = (int32_t)floor(step/5 + 0.5);    // < -5 : langsames Abfallen
-    	else if (step <= -1) step_s = -1;          //-1 .. -5
-    	else step_s = 0;                // 0.. -1
-    	pwm = pwm + step_s;
-
-    	if (Versuche > 0) if (step_s*old_step_s <= 0)cross--;    // Wechsel der Regelrichtung
-    	old_step_s = step_s;
-
-    	if (pwm > 70) pwm = 70;      // max. DC
-    	if (pwm <  5) pwm =  5;      // min. DC
-    	prog_set_pwm( pwm,  pwm_on);
-    	sleepms(50);
-    	Vist = vpp_getVpp_stable();
-    	if (f_i) fprintf(stdout, "Vpp-mess: %f V \n", Vist);
-    };
-  	if (f_i) fprintf(stdout, "PWM: %d \n", pwm);
-  	vpp_loop_on(prog.VppLoopMode);
+    // Brenner9
   }
-	else	  // VppLoopMode == 1
+  else
   {
-        //SollADCwert fuer kontinuierliche Regelung festlegen
-      	ADCsoll = (int32_t)floor((VppSoll/prog.d_DIV) / (5*prog.d_korr/1024) + 0.5);
-  	prog.ADCL = ADCsoll % 0x100;
-  	prog.ADCH = ADCsoll / 0x100;
-  	vpp_loop_on(1);
+    if (VppSoll < 5)
+    {
+      //3V-PIC
+    }
+    else
+    {
+      if (fabs(vpp_getVpp()-VppSoll) < 0.2)
+      {
+        // Spannung is bereits gut genug
+      }
+      else
+      {
+        vpp_loop_off();
+        if ((VppSoll > 14) || (VppSoll < 8.5))
+        {
+          fprintf(stderr, "## Vpp-soll: out of range   ");
+        }
+        else
+        {
+          // Theorie:
+          // Uout = Uin *  (Ton + Toff) / Toff
+          //      = 4,7V * 120 /(120-pwm)
+          //
+          // 1V entspricht einer PWM-Aenderung um 2,6
+          // 1V entspricht einer PWM-Aenderung um 5,8 unter Last
+          // korrekturwert, da Betriebsspannung bei der Kalibrierung anders war
+          pwm_cor = 1;
+          // Vusb_cal:=4.75;
+          // if Vusb_cal>4 then pwm_cor:=Vusb/Vusb_cal;
+          pwm_cor = pwm_cor * pwm_cor;
 
-  	if (f_i) fprintf(stdout, "PWM: %d \n", pwm);
-  	vpp_loop_on(prog.VppLoopMode);
-  	sleepms(100);
-  	if (f_i) fprintf(stdout, "Vpp-mess: %f V \n", vpp_getVpp() );
-  };
+          pwm_off = d2c(VppSoll * prog.d_gain_off /pwm_cor - prog.d_pwm0v_off);
+          pwm_on  = d2c(VppSoll * prog.d_gain_on  /pwm_cor - prog.d_pwm0v_on - 0.5);
+
+          pwm = pwm_off;
+          //failsafe
+          if (pwm < 0)      pwm    =   0;
+          if (pwm > 100)    pwm    = 100;
+          if (pwm_on < 0)   pwm_on =   0;
+          if (pwm_on > 100) pwm_on = 100;
+
+          if (f_i) fprintf(stdout, "PWM= %d  PWM_on= %d\n", pwm, pwm_on);
+          prog_set_pwm( pwm,  pwm_on);
+
+          // im Mode 1 wird mit einem festen PWM von 192/4=48 gearbeitet -> 40% -> 4us_on  6us_off
+            // das reicht fuer 18,3V ohne Last und 14,2V mit Last
+
+          if (prog.VppLoopMode > 1)
+          {
+            sleepms(200);
+
+            Vist = vpp_getVpp_stable();
+            if (f_i) fprintf(stdout, "Vpp-mess: %f V \n", Vist);
+            Versuche = 0;
+            step = 2;
+            cross = 2;    //Sollwert darf maximal 2 mal durchgangen werden
+            while ((fabs(Vist-VppSoll) > 0.2) && (fabs(step) >= 1) && (Versuche < 20) && (pwm > 5) && (pwm < 70) && (cross > 0))
+            {
+              Versuche++;
+              //pwm kann schnell steigen, aber soll langsam fallen
+              Uerr = VppSoll-Vist;
+                    step = (int32_t)floor(Uerr * prog.d_gain_off +0.5);
+                    if (step >= 0) step_s = (int32_t)floor(step * 0.8 + 0.5);    // >  0 : schneller Anstieg
+                    else if (step < -5)  step_s = (int32_t)floor(step/5 + 0.5);    // < -5 : langsames Abfallen
+              else if (step <= -1) step_s = -1;          //-1 .. -5
+              else step_s = 0;                // 0.. -1
+              pwm = pwm + step_s;
+
+              if (Versuche > 0) if (step_s*old_step_s <= 0)cross--;    // Wechsel der Regelrichtung
+              old_step_s = step_s;
+
+              if (pwm > 70) pwm = 70;      // max. DC
+              if (pwm <  5) pwm =  5;      // min. DC
+              prog_set_pwm( pwm,  pwm_on);
+              sleepms(50);
+              Vist = vpp_getVpp_stable();
+              if (f_i) fprintf(stdout, "Vpp-mess: %f V \n", Vist);
+            };
+            if (f_i) fprintf(stdout, "PWM: %d \n", pwm);
+            vpp_loop_on(prog.VppLoopMode);
+          }
+          else	  // VppLoopMode == 1
+          {
+                //SollADCwert fuer kontinuierliche Regelung festlegen
+                ADCsoll = (int32_t)floor((VppSoll/prog.d_DIV) / (5*prog.d_korr/1024) + 0.5);
+            prog.ADCL = ADCsoll % 0x100;
+            prog.ADCH = ADCsoll / 0x100;
+            vpp_loop_on(1);
+
+            if (f_i) fprintf(stdout, "PWM: %d \n", pwm);
+            vpp_loop_on(prog.VppLoopMode);
+            sleepms(100);
+            if (f_i) fprintf(stdout, "Vpp-mess: %f V \n", vpp_getVpp() );
+          }
+        }
+      }
+    } //3V Device
+  } // Brenner 9
 }//setVpp
 
 

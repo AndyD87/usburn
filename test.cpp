@@ -52,10 +52,9 @@ int32_t test_hardware(void)
   
 	if (prog.device == DEVICE_B9)
   {
-  	char vdd = 3;
-  	char vpp = 3;
+    vdd = 3;
+    vpp = 3;
   }
-
 
 	prog_set_socket(SOC_ICSP);
 

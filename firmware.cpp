@@ -164,7 +164,7 @@ int32_t firm_boot_off(void)
 	prog_write_eedata(start, src, length);
 
 	puts(">> now remove the jumper (if there is one) and press ENTER to continue");
-	char xx = getc (stdin);
+	getc (stdin);
 
 	prog_reset();
 	return 0;

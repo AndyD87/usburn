@@ -37,11 +37,8 @@
 
 #include "b8.h"
 
-
-
 int32_t main(int32_t argc, char* argv[])
 {
-	int32_t  areg_int;
 	uint16_t areg_word;
 
 	init_system();
@@ -493,7 +490,7 @@ int32_t main(int32_t argc, char* argv[])
 
 
 
-  // Korrekturwert für aktuelle Betriebsspannung ermitteln
+	// Korrekturwert fuer aktuelle Betriebsspannung ermitteln
 	prog.d_Vusb_cal = cal_Kalibrierespannung();  // liefert aktuelle USB-Spannung
   //cal_Kalibrierespannung();
 
@@ -577,7 +574,7 @@ int32_t main(int32_t argc, char* argv[])
 	prog_get_supported();
 
   // list of all supported pics
-	if (f_l) db_listpics(0);
+  if (f_l) db_listpics();
 
   // load Database into memory
 	db_load_db();
@@ -605,7 +602,7 @@ int32_t main(int32_t argc, char* argv[])
 
 	puts(" ");
 
-  //Typ manuell einstellen für PIC10F... und reanimation
+  //Typ manuell einstellen fuer PIC10F... und reanimation
   // ansonsten Autodetect
   uint16_t chip_id = 0;
 	if (f_d || (prog.core == CORE_12))
@@ -673,7 +670,7 @@ int32_t main(int32_t argc, char* argv[])
   	if (((prog.core == CORE_14) || (prog.core == CORE_12)) && (prog.pic.calmem.max !=-1)) 
     {
       // Calmem aus Flash lesen 
-      // osccal u.ä. retten , nur Kern 12 & 14
+      // osccal u.ae. retten , nur Kern 12 & 14
       //V. 19 vom 14/04/2009
       //PIC10F200	0x00FF  ..  0x00FF
       //PIC10F202	0x01FF  ..  0x01FF
@@ -790,8 +787,8 @@ int32_t main(int32_t argc, char* argv[])
   // brennen des PIC , ausser config
 	if (f_w)
   {
-  	prog_write_flash(0, prog.max_flash);
-  	if ((prog.max_ee > 0) && (prog.EndEE > 0)) prog_write_ee(0, prog.EndEE );
+    prog_write_flash();
+    if ((prog.max_ee > 0) && (prog.EndEE > 0)) prog_write_ee();
   	prog_write_id();
   }
 
