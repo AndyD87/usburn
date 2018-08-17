@@ -57,80 +57,80 @@ int32_t cal_step3(void)
   char mode1ok;   //Boolean;
   char calok = true;
 
-	puts("\nVPP-Calibration: \n");
+  puts("\nVPP-Calibration: \n");
     //die huehere Spannung muss im ADC-Messbereich liegen!!
-	prog_set_signal(SIG_VPP_OFF);
-	vpp_loop_off();
-	prog_set_pwm(10, 10);
-	sleepms(500);
-	U10 = vpp_getVpp();
-	pwm = 80;
-	do
+  prog_set_signal(SIG_VPP_OFF);
+  vpp_loop_off();
+  prog_set_pwm(10, 10);
+  sleepms(500);
+  U10 = vpp_getVpp();
+  pwm = 80;
+  do
   {
-  	pwm = pwm-10;
-  	prog_set_pwm(pwm, pwm);
-  	sleepms(500);
-  	Uhigh  = vpp_getVpp();
+    pwm = pwm-10;
+    prog_set_pwm(pwm, pwm);
+    sleepms(500);
+    Uhigh  = vpp_getVpp();
   } while ((Uhigh >= 14) && (pwm >= 30));
-	prog_set_pwm(10, 10);
-	prog_set_signal(SIG_VPP_OFF);
+  prog_set_pwm(10, 10);
+  prog_set_signal(SIG_VPP_OFF);
 
   // falls der Regler nicht funktioniert, folgt nun eine division durch 0!!
-	if (Uhigh <= U10)
+  if (Uhigh <= U10)
   {
-  	fprintf(stderr, "## Vpp_off regulation not operational \n");
-  	calok = false;    //false
+    fprintf(stderr, "## Vpp_off regulation not operational \n");
+    calok = false;    //false
   } else {
-      	prog.d_gain_off  = (pwm-10) / (Uhigh-U10);      // pwm-Aenderung fuer 1V
-  	prog.U00_off     = U10 - (Uhigh-U10)/((pwm-10)/10);    // Offset-Spannung
-  	prog.d_pwm0v_off = prog.U00_off * prog.d_gain_off ;    // Offset PWM
-  	fprintf(stdout, "-- U00_off = %f V   \n", prog.U00_off);
-  	fprintf(stdout, "-- gain_off= %f %%/V \n", prog.d_gain_off  );
-  	fprintf(stdout, "-- pwm0_off= %f %%   \n", prog.d_pwm0v_off);
+        prog.d_gain_off  = (pwm-10) / (Uhigh-U10);      // pwm-Aenderung fuer 1V
+    prog.U00_off     = U10 - (Uhigh-U10)/((pwm-10)/10);    // Offset-Spannung
+    prog.d_pwm0v_off = prog.U00_off * prog.d_gain_off ;    // Offset PWM
+    fprintf(stdout, "-- U00_off = %f V   \n", prog.U00_off);
+    fprintf(stdout, "-- gain_off= %f %%/V \n", prog.d_gain_off  );
+    fprintf(stdout, "-- pwm0_off= %f %%   \n", prog.d_pwm0v_off);
   };
 
     //die huehere Spannung muss im ADC-Messbereich liegen!!
-	prog_set_signal(SIG_VPP_ON);
-	vpp_loop_off();
-	prog_set_pwm(10, 10);
-	sleepms(500);
-	U10 = vpp_getVpp();
+  prog_set_signal(SIG_VPP_ON);
+  vpp_loop_off();
+  prog_set_pwm(10, 10);
+  sleepms(500);
+  U10 = vpp_getVpp();
     // zwischendurch Test fuer Mode1 DC, reicht 48 (40%) aus, um unter Last 13V zu erreichen?
-	pwm = 48;
-	prog_set_pwm(pwm, pwm);
-	sleepms(500);
-	Uhigh = vpp_getVpp();
-	if (Uhigh >= 13) {mode1ok = true;} else {mode1ok = false;};
-  	fprintf(stdout, "-- ULoad = %f V at PWM: %d \n", Uhigh, pwm);
+  pwm = 48;
+  prog_set_pwm(pwm, pwm);
+  sleepms(500);
+  Uhigh = vpp_getVpp();
+  if (Uhigh >= 13) {mode1ok = true;} else {mode1ok = false;};
+    fprintf(stdout, "-- ULoad = %f V at PWM: %d \n", Uhigh, pwm);
 
-	pwm = 80;
-	do
+  pwm = 80;
+  do
   {
-  	pwm = pwm-10;
-  	prog_set_pwm(pwm, pwm);
-  	sleepms(500);
-  	Uhigh = vpp_getVpp();
+    pwm = pwm-10;
+    prog_set_pwm(pwm, pwm);
+    sleepms(500);
+    Uhigh = vpp_getVpp();
   } while ((Uhigh >= 14) && (pwm >= 30));
 
-	prog_set_pwm(10, 10);
-	prog_set_signal(SIG_VPP_OFF);
+  prog_set_pwm(10, 10);
+  prog_set_signal(SIG_VPP_OFF);
   // falls der Regler nicht funktioniert, folgt nun eine division durch 0!!
-	if (Uhigh <= U10)
+  if (Uhigh <= U10)
   {
-  	fprintf(stderr, "## Vpp_off regulation not operational \n");
-  	calok = false;    //false
+    fprintf(stderr, "## Vpp_off regulation not operational \n");
+    calok = false;    //false
   } else {
-      	prog.d_gain_on  = (pwm-10) / (Uhigh-U10);      // pwm-Aenderung fuer 1V
-  	prog.U00_on     = U10 - (Uhigh-U10)/((pwm-10)/10);    // Offset-Spannung
-  	prog.d_pwm0v_on = prog.U00_on * prog.d_gain_on  ;    // Offset PWM
-  	fprintf(stdout, "-- U00_on  = %f V   \n", prog.U00_on);
-  	fprintf(stdout, "-- gain_on = %f %%/V \n", prog.d_gain_on  );
-  	fprintf(stdout, "-- pwm0_on = %f %%   \n", prog.d_pwm0v_on);
+        prog.d_gain_on  = (pwm-10) / (Uhigh-U10);      // pwm-Aenderung fuer 1V
+    prog.U00_on     = U10 - (Uhigh-U10)/((pwm-10)/10);    // Offset-Spannung
+    prog.d_pwm0v_on = prog.U00_on * prog.d_gain_on  ;    // Offset PWM
+    fprintf(stdout, "-- U00_on  = %f V   \n", prog.U00_on);
+    fprintf(stdout, "-- gain_on = %f %%/V \n", prog.d_gain_on  );
+    fprintf(stdout, "-- pwm0_on = %f %%   \n", prog.d_pwm0v_on);
   };
-	cal_write_data();
-	if (calok)    fprintf(stdout, "-- Calibration O.K.; programmer operational \n");
-	if (!mode1ok) fprintf(stderr, "## Vpp-Regulation-Mode1 can not be used!!   \n");
-	return 0;
+  cal_write_data();
+  if (calok)    fprintf(stdout, "-- Calibration O.K.; programmer operational \n");
+  if (!mode1ok) fprintf(stderr, "## Vpp-Regulation-Mode1 can not be used!!   \n");
+  return 0;
 };  //messung der PWM-Regelsteilheit
 
 
@@ -156,21 +156,21 @@ int32_t cal_write_data(void)
   unsigned char buf[USB_BLOCKSIZE];
   for (int32_t k=0; k<=60; k++) buf[k] = 0;
 
-	memcpy(&buf,     &prog.d_Uz,        8);  //Referenzspannung
-	memcpy(&buf[8],  &prog.d_DIV,       8);  //VppSpannungsteiler
-	memcpy(&buf[16], &prog.d_gain_off,  8);
-	memcpy(&buf[24], &prog.d_pwm0v_off, 8);
-	memcpy(&buf[32], &prog.d_gain_on,   8);
-	memcpy(&buf[40], &prog.d_pwm0v_on,  8);
-	memcpy(&buf[48], &prog.d_Vusb_cal,  8);  //aktuelle Betriebsspannung
-	buf[56] = cal_pruefsumme(0, 55, buf);
+  memcpy(&buf,     &prog.d_Uz,        8);  //Referenzspannung
+  memcpy(&buf[8],  &prog.d_DIV,       8);  //VppSpannungsteiler
+  memcpy(&buf[16], &prog.d_gain_off,  8);
+  memcpy(&buf[24], &prog.d_pwm0v_off, 8);
+  memcpy(&buf[32], &prog.d_gain_on,   8);
+  memcpy(&buf[40], &prog.d_pwm0v_on,  8);
+  memcpy(&buf[48], &prog.d_Vusb_cal,  8);  //aktuelle Betriebsspannung
+  buf[56] = cal_pruefsumme(0, 55, buf);
 
-	if (prog_write_eedata(0, buf, 57))
+  if (prog_write_eedata(0, buf, 57))
   {
-  	fprintf(stderr, "## failes to save calibration-data");
-  	return -1;
+    fprintf(stderr, "## failes to save calibration-data");
+    return -1;
   }
-	return 0;
+  return 0;
 }; //savetoeeprom
 
 
@@ -180,14 +180,14 @@ void cal_read_data(void)
 {
   // Steuer-EEPROM auslesen
   //Sollwerte
-	prog.d_Uz        = 3.3;
-	prog.d_DIV       = 3.14;
-	prog.d_gain_off  = 2.6;
-	prog.d_pwm0v_off = 16;
-	prog.d_gain_on   = 5.6;
-	prog.d_pwm0v_on  = 35;
-	prog.d_Vusb_cal  = 5;
-	prog.d_korr	 = 1;
+  prog.d_Uz        = 3.3;
+  prog.d_DIV       = 3.14;
+  prog.d_gain_off  = 2.6;
+  prog.d_pwm0v_off = 16;
+  prog.d_gain_on   = 5.6;
+  prog.d_pwm0v_on  = 35;
+  prog.d_Vusb_cal  = 5;
+  prog.d_korr   = 1;
 
   unsigned char dst[USB_BLOCKSIZE];
     int32_t start = 0;
@@ -198,39 +198,39 @@ void cal_read_data(void)
     //for (int32_t k=0; k<=60; k++) fprintf(stdout,"adr: %4x Wert %4x \n", k, dst[k]);
   //fprintf(stdout,"pruefsumme: %d \n", cal_pruefsumme(0, 55, dst));
 
-	if (cal_pruefsumme(0, 55, dst) == dst[56])
+  if (cal_pruefsumme(0, 55, dst) == dst[56])
   {
-  	memcpy(&prog.d_Uz, &dst, 8);
-  	memcpy(&prog.d_DIV, &dst[8], 8);
-  	memcpy(&prog.d_gain_off, &dst[16], 8);
-  	memcpy(&prog.d_pwm0v_off, &dst[24], 8);
-  	memcpy(&prog.d_gain_on, &dst[32], 8);
-  	memcpy(&prog.d_pwm0v_on, &dst[40], 8);
-  	memcpy(&prog.d_Vusb_cal, &dst[48], 8);
-  	if (f_i)
+    memcpy(&prog.d_Uz, &dst, 8);
+    memcpy(&prog.d_DIV, &dst[8], 8);
+    memcpy(&prog.d_gain_off, &dst[16], 8);
+    memcpy(&prog.d_pwm0v_off, &dst[24], 8);
+    memcpy(&prog.d_gain_on, &dst[32], 8);
+    memcpy(&prog.d_pwm0v_on, &dst[40], 8);
+    memcpy(&prog.d_Vusb_cal, &dst[48], 8);
+    if (f_i)
     {
-    	fprintf(stdout, "Uz        %f V \n", prog.d_Uz);    // Referenzspannung
-    	fprintf(stdout, "DIV       %f \n", prog.d_DIV);      // VppSpannungsteiler
-    	fprintf(stdout, "gain_off  %f \n", prog.d_gain_off);
-    	fprintf(stdout, "pwm0v_off %f \n", prog.d_pwm0v_off);
-    	fprintf(stdout, "gain_on   %f \n", prog.d_gain_on);
-    	fprintf(stdout, "pwm0v_on  %f \n", prog.d_pwm0v_on);
-    	fprintf(stdout, "Vusb_cal  %f V\n", prog.d_Vusb_cal);    // Betriebsspannung bei kalibrierung
+      fprintf(stdout, "Uz        %f V \n", prog.d_Uz);    // Referenzspannung
+      fprintf(stdout, "DIV       %f \n", prog.d_DIV);      // VppSpannungsteiler
+      fprintf(stdout, "gain_off  %f \n", prog.d_gain_off);
+      fprintf(stdout, "pwm0v_off %f \n", prog.d_pwm0v_off);
+      fprintf(stdout, "gain_on   %f \n", prog.d_gain_on);
+      fprintf(stdout, "pwm0v_on  %f \n", prog.d_pwm0v_on);
+      fprintf(stdout, "Vusb_cal  %f V\n", prog.d_Vusb_cal);    // Betriebsspannung bei kalibrierung
     }
-  	fprintf(stdout,">> load calibration data\n");
+    fprintf(stdout,">> load calibration data\n");
   }
-	else fprintf(stderr,"## no calibration data\n");
+  else fprintf(stderr,"## no calibration data\n");
 
 #ifdef DEBUG
   //anzeigen zum test
-	if (f_i)
+  if (f_i)
   {
-      	for (int32_t k=0; k<eepointer; k++)
+        for (int32_t k=0; k<eepointer; k++)
     {
-    	fprintf(stdout, "%3.2x", EE[k]);
-    	if ((k % 0x10) == 0x0F) fprintf(stdout, "\n");
+      fprintf(stdout, "%3.2x", EE[k]);
+      if ((k % 0x10) == 0x0F) fprintf(stdout, "\n");
     }
-  	fprintf(stdout, "\n");
+    fprintf(stdout, "\n");
   }
 #endif
 }
@@ -248,16 +248,16 @@ void cal_read_data(void)
 // mode=3 : nur spannung herunterregeln
 int32_t vpp_loop_on(int32_t mode)
 {
-	unsigned char L = prog.ADCL;
-	unsigned char H = prog.ADCH & 0x03;  //hat nut 10 bit
-	switch (mode)
+  unsigned char L = prog.ADCL;
+  unsigned char H = prog.ADCH & 0x03;  //hat nut 10 bit
+  switch (mode)
   {
-  	case 2: H = H | 0x80; break;
-  	case 3: H = H | 0x40; break;
-  	case 0: H = 0; L = 0; break;
+    case 2: H = H | 0x80; break;
+    case 3: H = H | 0x40; break;
+    case 0: H = 0; L = 0; break;
   }
-	prog_set_vpp(L, H);
-	return 0;
+  prog_set_vpp(L, H);
+  return 0;
 }
 
 
@@ -265,8 +265,8 @@ int32_t vpp_loop_on(int32_t mode)
 //Vpp-Stabilisierung abschalten
 int32_t vpp_loop_off(void)
 {
-	prog_set_vpp(0, 0);
-	return 0;
+  prog_set_vpp(0, 0);
+  return 0;
 }
 
 
@@ -277,23 +277,23 @@ int32_t vpp_loop_off(void)
 //liefert die USB-Betriebsspannung
 float cal_Kalibrierespannung(void)
 {
-	vpp_loop_off();
+  vpp_loop_off();
   //Messen der Spannung an der Referenzdiode
-	float Volt = vpp_getADC(1, 8);  // kanal 1, 8 Zyklen
-	if (Volt != -1)
+  float Volt = vpp_getADC(1, 8);  // kanal 1, 8 Zyklen
+  if (Volt != -1)
   {
-  	if (f_i) fprintf(stdout, "-- ADC-value   = %f \n", Volt);
-  	Volt = Volt * 5 / 1023;
-  	if (f_i) fprintf(stdout, "-- Raw-voltage = %f V\n", Volt);
-  	prog.d_korr = prog.d_Uz / Volt;
-  	float Vusb  = 5 * prog.d_korr;
-  	if (f_i) fprintf(stdout, "-- kor         = %f \n", prog.d_korr);
-  	if (f_i) fprintf(stdout, "-- Vdd         = %f V\n", Vusb);
-  	return Vusb;
+    if (f_i) fprintf(stdout, "-- ADC-value   = %f \n", Volt);
+    Volt = Volt * 5 / 1023;
+    if (f_i) fprintf(stdout, "-- Raw-voltage = %f V\n", Volt);
+    prog.d_korr = prog.d_Uz / Volt;
+    float Vusb  = 5 * prog.d_korr;
+    if (f_i) fprintf(stdout, "-- kor         = %f \n", prog.d_korr);
+    if (f_i) fprintf(stdout, "-- Vdd         = %f V\n", Vusb);
+    return Vusb;
   } else {
-  	fprintf(stderr,"## Calibration Error\n");
+    fprintf(stderr,"## Calibration Error\n");
   }
-	return 0;
+  return 0;
 }
 
 
@@ -311,29 +311,29 @@ float vpp_getADC(int32_t kanal, int32_t zyklen)
   float Result = -1;
 
   //Messen der Spannung
-	prog_set_an(kanal);
-	sleepms(1);
-  	for (int32_t k=1; k<= zyklen; k++)
+  prog_set_an(kanal);
+  sleepms(1);
+    for (int32_t k=1; k<= zyklen; k++)
   {
-  	Volt += prog_read_adc();
-  	count++;
+    Volt += prog_read_adc();
+    count++;
   }
 
-	if (count)
+  if (count)
   {
-  	Volt = Volt / count;
-  	Result = Volt;
-  	Volt += floor(Volt + 0.5);
-  	uint16_t uiVolt = (uint16_t)Volt;
-  	prog.ADCL = (uint8_t)(uiVolt & 0xff);
-  	prog.ADCH = (uint8_t)(uiVolt >> 8);
+    Volt = Volt / count;
+    Result = Volt;
+    Volt += floor(Volt + 0.5);
+    uint16_t uiVolt = (uint16_t)Volt;
+    prog.ADCL = (uint8_t)(uiVolt & 0xff);
+    prog.ADCH = (uint8_t)(uiVolt >> 8);
   }
-	else
+  else
   {
-  	prog.ADCL = 0;
-  	prog.ADCH = 0;
+    prog.ADCL = 0;
+    prog.ADCH = 0;
   };
-	return Result;
+  return Result;
 }; // get ADC
 
 
@@ -372,20 +372,20 @@ float vpp_getVpp(void)
 // wartet max 500 ms auf Stabilitaet
 float vpp_getVpp_stable(void)
 {
-  	int32_t k;
-	float U1;
-	float U2;
+    int32_t k;
+  float U1;
+  float U2;
 
-	U1 = vpp_getVpp();
-	k = 0;
-	do
+  U1 = vpp_getVpp();
+  k = 0;
+  do
   {
-  	U2 = U1;
-  	sleepms(50);
-  	U1 = vpp_getVpp();
-  	k++;
+    U2 = U1;
+    sleepms(50);
+    U1 = vpp_getVpp();
+    k++;
   } while ((fabs(U2-U1) >= 0.05) && (k < 10));
-	return U1;
+  return U1;
 }
 
 /**
@@ -396,18 +396,18 @@ float vpp_getVpp_stable(void)
  */
 void vpp_setVpp(float VppSoll)
 {
-    int32_t	pwm;
-    int32_t	pwm_on;
-    int32_t	pwm_off;
-  float	Vist;
-    int32_t	Versuche;
-    int32_t	step;
-    int32_t	step_s;
-    int32_t	old_step_s;
-  float	Uerr;
-    int32_t	cross;
-  float	pwm_cor;
-    int32_t	ADCsoll;
+    int32_t  pwm;
+    int32_t  pwm_on;
+    int32_t  pwm_off;
+  float  Vist;
+    int32_t  Versuche;
+    int32_t  step;
+    int32_t  step_s;
+    int32_t  old_step_s;
+  float  Uerr;
+    int32_t  cross;
+  float  pwm_cor;
+    int32_t  ADCsoll;
   if (prog.device != DEVICE_B8 ) // Brenner9
   {
     // Brenner9
@@ -495,7 +495,7 @@ void vpp_setVpp(float VppSoll)
             if (f_i) fprintf(stdout, "PWM: %d \n", pwm);
             vpp_loop_on(prog.VppLoopMode);
           }
-          else	  // VppLoopMode == 1
+          else    // VppLoopMode == 1
           {
                 //SollADCwert fuer kontinuierliche Regelung festlegen
                 ADCsoll = (int32_t)floor((VppSoll/prog.d_DIV) / (5*prog.d_korr/1024) + 0.5);

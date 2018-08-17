@@ -58,14 +58,14 @@ unsigned char d2c(double d)
 // look for programmer
 int32_t search_brenner8(void)
 {
-	struct usb_bus *bus;
-	struct usb_device *dev;
-	struct usb_interface_descriptor *iface;
-	usb_dev_handle *udev;
-	int32_t usbmode, ep_in, ep_out;
+  struct usb_bus *bus;
+  struct usb_device *dev;
+  struct usb_interface_descriptor *iface;
+  usb_dev_handle *udev;
+  int32_t usbmode, ep_in, ep_out;
 
-	usb_find_busses();
-	usb_find_devices();
+  usb_find_busses();
+  usb_find_devices();
 
   for (bus = usb_busses; bus; bus = bus->next)
   {
@@ -212,44 +212,44 @@ int32_t programmer_command(unsigned char *data_in, int32_t datasz, unsigned char
   }
 
 #ifdef DEBUG
-	fprintf(stderr, "<=");
-	for (i=0; i<rc; i++) fprintf(stderr, " %02X", data_out[i]);
-	fprintf(stderr, "\n");
+  fprintf(stderr, "<=");
+  for (i=0; i<rc; i++) fprintf(stderr, " %02X", data_out[i]);
+  fprintf(stderr, "\n");
 #endif
 
-	return rc;
+  return rc;
 }
 
 /**
  * @brief identify sprut-device and read version of firmware
  *        after call in buf:
- *          buf[0]	0x00
- *          buf[1]	nonsense
- *          buf[2]	version (e.g. firmwareversion)
- *          buf[3]	device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
+ *          buf[0]  0x00
+ *          buf[1]  nonsense
+ *          buf[2]  version (e.g. firmwareversion)
+ *          buf[3]  device: 0-Brenner8; 1=Bootloader 2=USB4A 3=Brenner9
  * @return
  */
 int32_t prog_get_version(void)
 {
-	int32_t rc;
-	unsigned char cmd[] = { CMD_READ_VERSION };
-	unsigned char buf[USB_BLOCKSIZE];
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	//fprintf(stdout, "rc %d bu0 %d bu1 %d bu2 %d bu3 %d \n", rc, buf[0], buf[1], buf[2], buf[3]);
-	if (rc < 0)	return rc;        //Fehler
-	if (rc != 4) return -EFAULT;      //falsche Bytezahl
-	if (memcmp(buf, cmd, 1)) return -EFAULT;  // erstes uint8_t komt nicht zurueck
+  int32_t rc;
+  unsigned char cmd[] = { CMD_READ_VERSION };
+  unsigned char buf[USB_BLOCKSIZE];
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  //fprintf(stdout, "rc %d bu0 %d bu1 %d bu2 %d bu3 %d \n", rc, buf[0], buf[1], buf[2], buf[3]);
+  if (rc < 0)  return rc;        //Fehler
+  if (rc != 4) return -EFAULT;      //falsche Bytezahl
+  if (memcmp(buf, cmd, 1)) return -EFAULT;  // erstes uint8_t komt nicht zurueck
 
-	prog.fw     = buf[2];
-	prog.device = buf[3];
-	switch (buf[3])
-	{
-		case 0x00: prog.mode = MODE_NORMAL; fprintf(stdout, " Brenner8 ");  break;  // Brenner8
-		case 0x01: prog.mode = MODE_BOOT;   fprintf(stdout, " Bootloader ");break;   // bootloader
-		case 0x03: prog.mode = MODE_NORMAL; fprintf(stdout, " Brenner9 ");	break;  // Brenner9
-		default:	 prog.mode = MODE_NORMAL; return(-1); break; // falsches device
-	}
-	return (int)buf[2];
+  prog.fw     = buf[2];
+  prog.device = buf[3];
+  switch (buf[3])
+  {
+    case 0x00: prog.mode = MODE_NORMAL; fprintf(stdout, " Brenner8 ");  break;  // Brenner8
+    case 0x01: prog.mode = MODE_BOOT;   fprintf(stdout, " Bootloader ");break;   // bootloader
+    case 0x03: prog.mode = MODE_NORMAL; fprintf(stdout, " Brenner9 ");  break;  // Brenner9
+    default:   prog.mode = MODE_NORMAL; return(-1); break; // falsches device
+  }
+  return (int)buf[2];
 }
 
 
@@ -257,14 +257,14 @@ int32_t prog_get_version(void)
 // switch LEDs on and off
 int32_t prog_set_led(unsigned char led)
 {
-	unsigned char cmd[] = { CMD_LED_ONOFF, led };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  unsigned char cmd[] = { CMD_LED_ONOFF, led };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
@@ -272,117 +272,117 @@ int32_t prog_set_led(unsigned char led)
 // get supported PIC-families
 void prog_get_supported(void)
 {
-	prog.supp = 0xFF;  // yeaaa, I can do everything
+  prog.supp = 0xFF;  // yeaaa, I can do everything
 
-	unsigned char cmd[] = { CMD_SUPPORTED };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0)
-	{
-		// not valid
-	}
-	else
-	{
-		if (rc < 2)
-		{
-			// not valid
-		}
-		else
-		{
-			if (memcmp(buf, cmd, 1))
-			{
-				// not valid
-			}
-			else
-			{
-				prog.supp = buf[1];
-				fprintf(stdout,"supported: ");
-				if ((prog.supp & 0x01) != 0) fprintf(stdout," PIC10F ,");
-				if ((prog.supp & 0x02) != 0) fprintf(stdout," PIC16F ,");
-				if ((prog.supp & 0x04) != 0) fprintf(stdout," PIC18F ,");
-				if ((prog.supp & 0x08) != 0) fprintf(stdout," dsPIC30F ,");
-				if ((prog.supp & 0x10) != 0) fprintf(stdout," PIC18FxxJ ,");
-				if ((prog.supp & 0x20) != 0) fprintf(stdout," PIC24 , dsPIC33F ,");
-				if ((prog.supp & 0x40) != 0) fprintf(stdout," PIC18FxxK ,");
-				fprintf(stdout,"\n");
-			}
-		}
-	}
+  unsigned char cmd[] = { CMD_SUPPORTED };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0)
+  {
+    // not valid
+  }
+  else
+  {
+    if (rc < 2)
+    {
+      // not valid
+    }
+    else
+    {
+      if (memcmp(buf, cmd, 1))
+      {
+        // not valid
+      }
+      else
+      {
+        prog.supp = buf[1];
+        fprintf(stdout,"supported: ");
+        if ((prog.supp & 0x01) != 0) fprintf(stdout," PIC10F ,");
+        if ((prog.supp & 0x02) != 0) fprintf(stdout," PIC16F ,");
+        if ((prog.supp & 0x04) != 0) fprintf(stdout," PIC18F ,");
+        if ((prog.supp & 0x08) != 0) fprintf(stdout," dsPIC30F ,");
+        if ((prog.supp & 0x10) != 0) fprintf(stdout," PIC18FxxJ ,");
+        if ((prog.supp & 0x20) != 0) fprintf(stdout," PIC24 , dsPIC33F ,");
+        if ((prog.supp & 0x40) != 0) fprintf(stdout," PIC18FxxK ,");
+        fprintf(stdout,"\n");
+      }
+    }
+  }
 }
 
 
 // read ADC
 int32_t prog_read_adc(void)
 {
-	unsigned char cmd[] = { CMD_RD_ADC };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  unsigned char cmd[] = { CMD_RD_ADC };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 3) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return (buf[1] | (buf[2] << 8));
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 3) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return (buf[1] | (buf[2] << 8));
 }
 
 
 // select input for ADC
 int32_t prog_set_an(unsigned char an)
 {
-	unsigned char cmd[] = { CMD_SET_AN, an };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  unsigned char cmd[] = { CMD_SET_AN, an };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
 // set signal for test
 int32_t prog_set_signal(unsigned char signal)
 {
-	unsigned char cmd[] = { CMD_SET_SIGNAL, signal };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  unsigned char cmd[] = { CMD_SET_SIGNAL, signal };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
 //legt den pwm-Wert fuer Vpp mit und ohne Last fest
 int32_t prog_set_pwm(unsigned char pwm_off, unsigned char pwm_on)
 {
-	unsigned char cmd[] = { CMD_SET_PWM, pwm_off, pwm_on };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  unsigned char cmd[] = { CMD_SET_PWM, pwm_off, pwm_on };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
 int32_t prog_set_vpp(unsigned char vppl, unsigned char vpph)
 {
-	unsigned char cmd[] = { CMD_SET_VPP, vppl, vpph };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  unsigned char cmd[] = { CMD_SET_VPP, vppl, vpph };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
@@ -401,37 +401,37 @@ int32_t _prog_boot_reed_eedata(uint32_t start, uint32_t length, unsigned char *d
   if ((start + length) > CTRL_EEPROM_SIZE || !dst || !length || length > 59)
     return -EFAULT;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0)
-	{
-		iRet = rc;
-	}
-	else
-	{
-		if (rc < static_cast<int32_t>(sizeof(cmd) + length))
-		{
-			iRet = -EFAULT;
-		}
-		else
-		{
-			if (memcmp(buf, cmd, sizeof(cmd)))
-			{
-				iRet = -EFAULT;
-			}
-			else
-			{
-				memcpy(dst, &buf[sizeof(cmd)], length);
-			}
-		}
-	}
-	return iRet;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0)
+  {
+    iRet = rc;
+  }
+  else
+  {
+    if (rc < static_cast<int32_t>(sizeof(cmd) + length))
+    {
+      iRet = -EFAULT;
+    }
+    else
+    {
+      if (memcmp(buf, cmd, sizeof(cmd)))
+      {
+        iRet = -EFAULT;
+      }
+      else
+      {
+        memcpy(dst, &buf[sizeof(cmd)], length);
+      }
+    }
+  }
+  return iRet;
 }
 
 
 // read EEPROM of controller PIC - im Programmer-Mode
 int32_t _prog_read_eedata(uint32_t start, uint32_t length, unsigned char *dst)
 {
-  int32_t iReturn = 0;
+  int32_t iReturn = -1;
   unsigned char cmd[] = { CMD_READ_EEDATA,
               (unsigned char)(start & 0xFF),
               (unsigned char)((start >> 8) & 0xFF),
@@ -442,37 +442,37 @@ int32_t _prog_read_eedata(uint32_t start, uint32_t length, unsigned char *dst)
   if ((start + length) > CTRL_EEPROM_SIZE || !dst || !length || length > 59)
     return -EFAULT;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0)
-	{
-		iReturn = rc;
-	}
-	else
-	{
-		if (rc < static_cast<int32_t>(sizeof(cmd) + length))
-		{
-			iReturn = -EFAULT;
-		}
-		else
-		{
-			if (memcmp(buf, cmd, sizeof(cmd)))
-			{
-				iReturn = -EFAULT;
-			}
-		}
-		memcpy(dst, &buf[sizeof(cmd)], length);
-	}
-	return iReturn;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0)
+  {
+    iReturn = rc;
+  }
+  else
+  {
+    if (rc < static_cast<int32_t>(sizeof(cmd) + length))
+    {
+      iReturn = -EFAULT;
+    }
+    else
+    {
+      if (memcmp(buf, cmd, sizeof(cmd)))
+      {
+        iReturn = -EFAULT;
+      }
+    }
+    memcpy(dst, &buf[sizeof(cmd)], length);
+  }
+  return iReturn;
 }
 
 
 // read EEPROM of controller-PIC
 int32_t prog_read_eedata(uint32_t start, uint32_t length, unsigned char *dst)
 {
-		int32_t rc;
-	while (length) {
-		/* although 59 bytes would be possible, take an even number of bytes */
-				int32_t this_shot = (length > 58) ? 58 : length;
+    int32_t rc;
+  while (length) {
+    /* although 59 bytes would be possible, take an even number of bytes */
+        int32_t this_shot = (length > 58) ? 58 : length;
 
     if (prog.mode == MODE_BOOT) {
       rc = _prog_boot_reed_eedata(start, this_shot, dst);
@@ -506,11 +506,11 @@ int32_t _prog_boot_write_eedata(int32_t start, unsigned char *src, int32_t lengt
 
   memcpy(&cmd[5], src, length);
 
-	rc = programmer_command(cmd, length + 5, buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, length + 5, buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
@@ -528,11 +528,11 @@ int32_t _prog_write_eedata(int32_t start, unsigned char *src, uint32_t length)
 
   memcpy(&cmd[4], src, length);
 
-	rc = programmer_command(cmd, length + 4, buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, length + 4, buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
@@ -564,24 +564,24 @@ int32_t prog_write_eedata(int32_t start, unsigned char *src, int32_t length)
 // reset programmer
 int32_t prog_reset(void)
 {
-	unsigned char cmd[] = { prog.mode == MODE_BOOT ? BOOT_RESET : CMD_RESET };
-	return programmer_command(cmd, sizeof(cmd), NULL);
+  unsigned char cmd[] = { prog.mode == MODE_BOOT ? BOOT_RESET : CMD_RESET };
+  return programmer_command(cmd, sizeof(cmd), NULL);
 }
 
 
 //read Chip-ID to identify PIC-Type
 int32_t prog_read_chipid(void)
 {
-	unsigned char cmd[] = { CMD_READ_CHIPID };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	uint16_t Rev = 0;
-	uint16_t ID  = 0;
+  unsigned char cmd[] = { CMD_READ_CHIPID };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  uint16_t Rev = 0;
+  uint16_t ID  = 0;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 3) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 3) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
 
   ID = buf[1] | (buf[2] << 8);
   // 14 und 16 bit
@@ -589,10 +589,10 @@ int32_t prog_read_chipid(void)
   // 24 bit
   if (prog.core >= CORE_30) Rev = buf[3] | (buf[4] << 8);
 
-	prog.chipid   = ID;
-	prog.revision = Rev;
+  prog.chipid   = ID;
+  prog.revision = Rev;
 
-	return buf[1] | (buf[2] << 8);  //ID
+  return buf[1] | (buf[2] << 8);  //ID
 }
 
 
@@ -610,8 +610,8 @@ int32_t prog_set_address(int32_t start, int32_t stop)
   unsigned char buf[USB_BLOCKSIZE];
     int32_t rc;
   rc = programmer_command(cmd, sizeof(cmd), buf);
-  if (rc < 0)	return rc;
-  if (rc < 1)	return -EFAULT;
+  if (rc < 0)  return rc;
+  if (rc < 1)  return -EFAULT;
   if (memcmp(buf, cmd, 1)) return -EFAULT;
   return 0;
 }
@@ -630,28 +630,28 @@ void EraseTPIC(TPIC & PIC)
 // Auslesen des Flash-Programmspeichers von start bis stop
 int32_t prog_read_flash(int32_t start, int32_t stop)
 {
-	fprintf(stdout,">> read PIC-FLASH ");
-	if (f_i) fprintf(stdout,"from %5.4x fo %5.4x ", start, stop);
-	prog_set_address(start, stop);
-	uint8_t Flash[0x80000];      //512k
-		int32_t flashpointer = 0;
-	unsigned char cmd[] = { CMD_READ_FLASH};
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-		for (int32_t k=0; k<buf[1]; k++) Flash[flashpointer++] = buf[k+3];
-	while (buf[2]) {
-		rc = programmer_command(cmd, sizeof(cmd), buf);
-		if (rc < 0) return rc;
-		if (rc < 1) return -EFAULT;
-		if (memcmp(buf, cmd, 1)) return -EFAULT;
-				for (int32_t k=0; k<buf[1]; k++)   Flash[flashpointer++] = buf[k+3];
-		fprintf(stdout,"."); fflush(stdout);
-	}
-	fprintf(stdout,"\n");
+  fprintf(stdout,">> read PIC-FLASH ");
+  if (f_i) fprintf(stdout,"from %5.4x fo %5.4x ", start, stop);
+  prog_set_address(start, stop);
+  uint8_t Flash[0x80000];      //512k
+    int32_t flashpointer = 0;
+  unsigned char cmd[] = { CMD_READ_FLASH};
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+    for (int32_t k=0; k<buf[1]; k++) Flash[flashpointer++] = buf[k+3];
+  while (buf[2]) {
+    rc = programmer_command(cmd, sizeof(cmd), buf);
+    if (rc < 0) return rc;
+    if (rc < 1) return -EFAULT;
+    if (memcmp(buf, cmd, 1)) return -EFAULT;
+        for (int32_t k=0; k<buf[1]; k++)   Flash[flashpointer++] = buf[k+3];
+    fprintf(stdout,"."); fflush(stdout);
+  }
+  fprintf(stdout,"\n");
 
   //combine single bytes to program-code-words
     int32_t max_Flash = flashpointer;
@@ -663,42 +663,42 @@ int32_t prog_read_flash(int32_t start, int32_t stop)
         for (int32_t k=0; k<= max_Flash; k++)   prog.HexOut.Flash[k] = Flash[2*k] + Flash[2*k+1]*256;
   break;
 
-	case CORE_16:
-	case CORE_17:
-	case CORE_18:
-		max_Flash = flashpointer-1;
-				for (int32_t k=0; k< max_Flash; k++)
-		{
-			prog.HexOut.Flash[k] = Flash[k];
-			//fuer PIC18FxxJxx die Config einblenden
-			if ( (k >= prog.pic.cfgmem.min) & (k <= prog.pic.cfgmem.max))  prog.HexOut.Config[k-prog.pic.cfgmem.min] = prog.HexIn.Flash[k];
-		}
-		max_Flash--; // for the following test-data-output
-	break;
+  case CORE_16:
+  case CORE_17:
+  case CORE_18:
+    max_Flash = flashpointer-1;
+        for (int32_t k=0; k< max_Flash; k++)
+    {
+      prog.HexOut.Flash[k] = Flash[k];
+      //fuer PIC18FxxJxx die Config einblenden
+      if ( (k >= prog.pic.cfgmem.min) & (k <= prog.pic.cfgmem.max))  prog.HexOut.Config[k-prog.pic.cfgmem.min] = prog.HexIn.Flash[k];
+    }
+    max_Flash--; // for the following test-data-output
+  break;
 
-	case CORE_30:
-	case CORE_33:
-		max_Flash = ((flashpointer+1) / 3)-1;
-				for (int32_t k=0; k < max_Flash; k++)
-		{
-			prog.HexOut.Flash[2*k]   = Flash[3*k]+Flash[3*k+1]*256; // LSB, MSB
-			prog.HexOut.Flash[2*k+1] = Flash[3*k+2];                // USB
-		}
-		max_Flash = 2*(max_Flash-1)  +1; // for the following test-data-output
-	break;
-	}
+  case CORE_30:
+  case CORE_33:
+    max_Flash = ((flashpointer+1) / 3)-1;
+        for (int32_t k=0; k < max_Flash; k++)
+    {
+      prog.HexOut.Flash[2*k]   = Flash[3*k]+Flash[3*k+1]*256; // LSB, MSB
+      prog.HexOut.Flash[2*k+1] = Flash[3*k+2];                // USB
+    }
+    max_Flash = 2*(max_Flash-1)  +1; // for the following test-data-output
+  break;
+  }
 
-	//anzeigen zum test
-	if (f_i)
-		for (int32_t k=0; k<=max_Flash; k++)
-	{
-		if ((k % 0x10) == 0x0)  fprintf(stdout, "%5.4x :",k);
-		fprintf(stdout, "%5.4x", prog.HexOut.Flash[k]);
-		if ((k % 0x10) == 0x0F) fprintf(stdout, "\n");
-	}
-	fprintf(stdout, "\n");
+  //anzeigen zum test
+  if (f_i)
+    for (int32_t k=0; k<=max_Flash; k++)
+  {
+    if ((k % 0x10) == 0x0)  fprintf(stdout, "%5.4x :",k);
+    fprintf(stdout, "%5.4x", prog.HexOut.Flash[k]);
+    if ((k % 0x10) == 0x0F) fprintf(stdout, "\n");
+  }
+  fprintf(stdout, "\n");
 
-	return 0;
+  return 0;
 }//prog_read_flash
 
 
@@ -707,56 +707,56 @@ int32_t prog_read_flash(int32_t start, int32_t stop)
 // nur Core_12 und Core_14
 int32_t prog_read_calmem(int32_t start, int32_t stop)
 {
-	fprintf(stdout,">> read CALMEM ");
-	if (f_i) fprintf(stdout,"from %5.4x fo %5.4x ", start, stop);
-	prog_set_address(start, stop);
-	uint8_t Flash[0x80000];      //512k
-		int32_t flashpointer = 0;
-	unsigned char cmd[] = { CMD_READ_FLASH};
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-		for (int32_t k=0; k<buf[1]; k++) Flash[flashpointer++] = buf[k+3];
-	while (buf[2]) {
-		rc = programmer_command(cmd, sizeof(cmd), buf);
-		if (rc < 0) return rc;
-		if (rc < 1) return -EFAULT;
-		if (memcmp(buf, cmd, 1)) return -EFAULT;
-				for (int32_t k=0; k<buf[1]; k++) Flash[flashpointer++] = buf[k+3];
-		fprintf(stdout,"."); fflush(stdout);
-	}
-	fprintf(stdout,"\n");
+  fprintf(stdout,">> read CALMEM ");
+  if (f_i) fprintf(stdout,"from %5.4x fo %5.4x ", start, stop);
+  prog_set_address(start, stop);
+  uint8_t Flash[0x80000];      //512k
+    int32_t flashpointer = 0;
+  unsigned char cmd[] = { CMD_READ_FLASH};
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+    for (int32_t k=0; k<buf[1]; k++) Flash[flashpointer++] = buf[k+3];
+  while (buf[2]) {
+    rc = programmer_command(cmd, sizeof(cmd), buf);
+    if (rc < 0) return rc;
+    if (rc < 1) return -EFAULT;
+    if (memcmp(buf, cmd, 1)) return -EFAULT;
+        for (int32_t k=0; k<buf[1]; k++) Flash[flashpointer++] = buf[k+3];
+    fprintf(stdout,"."); fflush(stdout);
+  }
+  fprintf(stdout,"\n");
 
   //combine single bytes to program-code-words
     for (int32_t k=0; k<= ((flashpointer+1) / 2)-1; k++)  prog.Calmem[start+k] = Flash[2*k] + (Flash[2*k+1] << 8);
 
-	//anzeigen zum test
-	if (f_i)
-		for (int32_t k=0; k<= ((flashpointer+1) / 2)-1; k++)
-	{
-		if ((k % 0x10) == 0x0)  fprintf(stdout, "%5.4x :",start+k);
-		fprintf(stdout, "%5.4x", prog.Calmem[start+k]);
-		if ((k % 0x10) == 0x0F) fprintf(stdout, "\n");
-	}
-	fprintf(stdout, "\n");
+  //anzeigen zum test
+  if (f_i)
+    for (int32_t k=0; k<= ((flashpointer+1) / 2)-1; k++)
+  {
+    if ((k % 0x10) == 0x0)  fprintf(stdout, "%5.4x :",start+k);
+    fprintf(stdout, "%5.4x", prog.Calmem[start+k]);
+    if ((k % 0x10) == 0x0F) fprintf(stdout, "\n");
+  }
+  fprintf(stdout, "\n");
 
-	return 0;
+  return 0;
 }// prog_read_calmem
 
 
 // Auslesen des EEPROMs von start bis stop
 int32_t prog_read_ee(int32_t start, int32_t stop)
 {
-	fprintf(stdout, ">> read PIC-EEPROM");
-	prog_set_address(start, stop);
-	uint16_t EE[0x1000];
-		int32_t eepointer = 0;
-	unsigned char cmd[] = { CMD_READ_EEPROM};
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  fprintf(stdout, ">> read PIC-EEPROM");
+  prog_set_address(start, stop);
+  uint16_t EE[0x1000];
+    int32_t eepointer = 0;
+  unsigned char cmd[] = { CMD_READ_EEPROM};
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
   do
   {
@@ -769,16 +769,16 @@ int32_t prog_read_ee(int32_t start, int32_t stop)
   } while(buf[2]);
   fprintf(stdout,"\n");
 
-	//anzeigen zum test
-	if (f_i)
-	{
-				for (int32_t k=0; k<eepointer; k++)
-		{
-			fprintf(stdout, "%3.2x", EE[k]);
-			if ((k % 0x10) == 0x0F) fprintf(stdout, "\n");
-		}
-		fprintf(stdout, "\n");
-	}
+  //anzeigen zum test
+  if (f_i)
+  {
+        for (int32_t k=0; k<eepointer; k++)
+    {
+      fprintf(stdout, "%3.2x", EE[k]);
+      if ((k % 0x10) == 0x0F) fprintf(stdout, "\n");
+    }
+    fprintf(stdout, "\n");
+  }
 
   if (prog.core == CORE_30)
   {
@@ -793,8 +793,8 @@ int32_t prog_read_ee(int32_t start, int32_t stop)
   }
   else
 
-		for (int32_t m=0; m<= (eepointer-1); m++) prog.HexOut.ROM[m] = EE[m];
-	return 0;
+    for (int32_t m=0; m<= (eepointer-1); m++) prog.HexOut.ROM[m] = EE[m];
+  return 0;
 }
 
 
@@ -802,18 +802,18 @@ int32_t prog_read_ee(int32_t start, int32_t stop)
 // Auslesen der ID-daten
 int32_t prog_read_ID(void)
 {
-	puts (">> read PIC-ID-data");
-	if (prog.core >= CORE_30) return(0);    //ACHTUNG fuer Kern=33 gibt es eine ID
-	if (prog.pic.userid.min == -1) return (0);  //18FxxJxx
-	prog_set_address(prog.pic.userid.min, prog.pic.userid.max);
+  puts (">> read PIC-ID-data");
+  if (prog.core >= CORE_30) return(0);    //ACHTUNG fuer Kern=33 gibt es eine ID
+  if (prog.pic.userid.min == -1) return (0);  //18FxxJxx
+  prog_set_address(prog.pic.userid.min, prog.pic.userid.max);
 
-	unsigned char cmd[] = { CMD_READ_IDDATA};
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
+  unsigned char cmd[] = { CMD_READ_IDDATA};
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
 
   switch (prog.core)
   {
@@ -828,32 +828,32 @@ int32_t prog_read_ID(void)
     break;
   }
 
-	//anzeigen zum test
-	if (f_i)
-	{
-				for (int32_t k=prog.pic.userid.min; k<=prog.pic.userid.max; k++)
-		{
-			fprintf(stdout, "%5.4x", prog.HexOut.ID[idNr(k)]);
-		}
-		fprintf(stdout, "\n");
-	}
+  //anzeigen zum test
+  if (f_i)
+  {
+        for (int32_t k=prog.pic.userid.min; k<=prog.pic.userid.max; k++)
+    {
+      fprintf(stdout, "%5.4x", prog.HexOut.ID[idNr(k)]);
+    }
+    fprintf(stdout, "\n");
+  }
 
-	return (0);
+  return (0);
 }
 
 
 // Auslesen der Config-daten
 int32_t prog_read_CONFIG(void)
 {
-	puts (">> read PIC-Config");
-	prog_set_address(prog.pic.cfgmem.min, prog.pic.cfgmem.max);
-	unsigned char cmd[] = { CMD_READ_CONFIG};
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
+  puts (">> read PIC-Config");
+  prog_set_address(prog.pic.cfgmem.min, prog.pic.cfgmem.max);
+  unsigned char cmd[] = { CMD_READ_CONFIG};
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
 
     for (int32_t k=prog.pic.cfgmem.min; k<=prog.pic.cfgmem.max; k++)
   {
@@ -869,46 +869,46 @@ int32_t prog_read_CONFIG(void)
     }
   }
 
-	//anzeigen zum test
-	if (f_i)
-	{
-				for (int32_t k=prog.pic.cfgmem.min; k<=prog.pic.cfgmem.max; k++)
-		{
-			fprintf(stdout, "%5.4x", prog.HexOut.Config[confNr(k)]);
-		}
-		fprintf(stdout, "\n");
-	}
+  //anzeigen zum test
+  if (f_i)
+  {
+        for (int32_t k=prog.pic.cfgmem.min; k<=prog.pic.cfgmem.max; k++)
+    {
+      fprintf(stdout, "%5.4x", prog.HexOut.Config[confNr(k)]);
+    }
+    fprintf(stdout, "\n");
+  }
 
-	return(0);
+  return(0);
 }
 
 
 // Verifizieren bzw. signieren der Firmware
 int32_t prog_check_firmware(void)
 {
-	puts (">> check firmware");
-	unsigned char cmd[] = { CMD_PSUMM, 0x00, 0x08, 0x5F, 0xFF};
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	uint16_t psummF, psummE;
-	uint8_t psummFl, psummFh;
+  puts (">> check firmware");
+  unsigned char cmd[] = { CMD_PSUMM, 0x00, 0x08, 0x5F, 0xFF};
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  uint16_t psummF, psummE;
+  uint8_t psummFl, psummFh;
 
-	// pruefsumme von 0800 bis 5FFF berechnen
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 3) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	psummFl = buf[1];
-	psummFh = buf[2];
-	psummF  = buf[1] + (buf[2]<<8);
+  // pruefsumme von 0800 bis 5FFF berechnen
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 3) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  psummFl = buf[1];
+  psummFh = buf[2];
+  psummF  = buf[1] + (buf[2]<<8);
 
-	// pruefsumme aus EEPROM auslesen (FC-FD)
-	unsigned char cmd1[] = { CMD_READ_EEDATA, 0xFC, 0x00, 0x02};
-	rc = programmer_command(cmd1, sizeof(cmd1), buf);
-	if (rc < 0) return rc;
-	if (rc < 6) return -EFAULT;
-	if (memcmp(buf, cmd1, 1)) return -EFAULT;
-	psummE = buf[4] + (buf[5]<<8);
+  // pruefsumme aus EEPROM auslesen (FC-FD)
+  unsigned char cmd1[] = { CMD_READ_EEDATA, 0xFC, 0x00, 0x02};
+  rc = programmer_command(cmd1, sizeof(cmd1), buf);
+  if (rc < 0) return rc;
+  if (rc < 6) return -EFAULT;
+  if (memcmp(buf, cmd1, 1)) return -EFAULT;
+  psummE = buf[4] + (buf[5]<<8);
 
   if (psummF != psummE)
   {
@@ -927,37 +927,37 @@ int32_t prog_check_firmware(void)
     }
   }
 
-	//anzeigen zum test
-	if (f_i) fprintf(stdout, "Fw-checksum:  %5.4x ;  Checksum in EEPROM:  %5.4x\n", psummF, psummE);
-	return(0);
+  //anzeigen zum test
+  if (f_i) fprintf(stdout, "Fw-checksum:  %5.4x ;  Checksum in EEPROM:  %5.4x\n", psummF, psummE);
+  return(0);
 }
 
 
 // rettet den calmem bei CORE_14-PICs mit calmem
 int32_t savecalmem(void)
 {
-	//fprintf(stdout,"calmemsaved: %d calmem.min: %d \n", prog.calmemsaved, prog.pic.calmem.min);
-	if (prog.calmemsaved != 0) return 0;
-	if (prog.pic.calmem.min < 0) return 0 ;    //failsave
-	int32_t Flashpointer = 0;
-	uint8_t Flash[0x4000];
-	puts (">> save CALMEM (eg. OSCCAL)");
-	prog_set_address(prog.pic.calmem.min, prog.pic.calmem.max);
-	unsigned char buf[USB_BLOCKSIZE];
-	do
-	{
-		unsigned char cmd[] = { CMD_READ_FLASH};
-				int32_t rc;
-		rc = programmer_command(cmd, sizeof(cmd), buf);
-		if (rc < 0) return rc;
-		if (rc < 1) return -EFAULT;
-		if (memcmp(buf, cmd, 1)) return -EFAULT;
-				for (int32_t k=1; k<=buf[1]; k++)	Flash[Flashpointer++] = buf[k+2];
-	} while (buf[2]);
+  //fprintf(stdout,"calmemsaved: %d calmem.min: %d \n", prog.calmemsaved, prog.pic.calmem.min);
+  if (prog.calmemsaved != 0) return 0;
+  if (prog.pic.calmem.min < 0) return 0 ;    //failsave
+  int32_t Flashpointer = 0;
+  uint8_t Flash[0x4000];
+  puts (">> save CALMEM (eg. OSCCAL)");
+  prog_set_address(prog.pic.calmem.min, prog.pic.calmem.max);
+  unsigned char buf[USB_BLOCKSIZE];
+  do
+  {
+    unsigned char cmd[] = { CMD_READ_FLASH};
+        int32_t rc;
+    rc = programmer_command(cmd, sizeof(cmd), buf);
+    if (rc < 0) return rc;
+    if (rc < 1) return -EFAULT;
+    if (memcmp(buf, cmd, 1)) return -EFAULT;
+        for (int32_t k=1; k<=buf[1]; k++)  Flash[Flashpointer++] = buf[k+2];
+  } while (buf[2]);
 
-		for (int32_t k=0; k<=((Flashpointer+1) / 2)-1; k++) prog.Calmem[prog.pic.calmem.min+k] = Flash[2*k] + Flash[2*k+1]*256;
-	prog.calmemsaved++;
-	return(0);
+    for (int32_t k=0; k<=((Flashpointer+1) / 2)-1; k++) prog.Calmem[prog.pic.calmem.min+k] = Flash[2*k] + Flash[2*k+1]*256;
+  prog.calmemsaved++;
+  return(0);
 }  // savecalmem
 
 
@@ -969,10 +969,10 @@ uint16_t HexinMux(int32_t Adr)
   //normalfall: nichts zu tun
   if ((Adr >= prog.pic.pgmmem.min) && (Adr <= prog.pic.pgmmem.max)) wert = prog.HexIn.Flash[Adr];
 
-	//calmem eintragen
-	if ((Adr >= prog.pic.calmem.min) && (Adr <= prog.pic.calmem.max))
-	{
-		wert = prog.Calmem[Adr];
+  //calmem eintragen
+  if ((Adr >= prog.pic.calmem.min) && (Adr <= prog.pic.calmem.max))
+  {
+    wert = prog.Calmem[Adr];
 
     //an dieser Stelle kann ein manuell eingestellter OSCCAL eingefuegt werden
     // prog.OsccalPar enthaelt 0..63 (PIC12) oder -64..63 (PIC10)
@@ -981,17 +981,17 @@ uint16_t HexinMux(int32_t Adr)
     {
       case CORE_12:
         // 7 bit mit vorzeichen  63 .. -64
-        // 0111 111x	max freq   = 63<<1
-        // 0000 000x	centerfreq = 0
-        // 1000 000x	min freq   = -64<<1
+        // 0111 111x  max freq   = 63<<1
+        // 0000 000x  centerfreq = 0
+        // 1000 000x  min freq   = -64<<1
         wert  = ((prog.OsccalPar<<1) & 0x00FF) | MOVLW_12;
       break;
       case CORE_14:
         // 6 bit ohne Vorzeichen 63 .. 00
         // c5-c4-c3-c2-c1-c0-x-x
-        // 1111 11xx	max freq   = 63<<2
-        // 1000 00xx	centerfreq = 32<<2
-        // 0000 00xx	min freq   = 0
+        // 1111 11xx  max freq   = 63<<2
+        // 1000 00xx  centerfreq = 32<<2
+        // 0000 00xx  min freq   = 0
         wert = ((prog.OsccalPar<<2) &0x00FF) | RETLW_14;
       break;  // 6 bit ohne Vorzeichen 63 .. 00
     }
@@ -1085,10 +1085,10 @@ int32_t prog_write_ee()
   int32_t anzahl;
   unsigned char endekennzeichen;
 
-	if (prog.EndEE < 0) return(0);
-	fprintf(stdout,">> program EEPROM");
-	prog_set_address(Adrr, prog.EndEE);
-	prog_set_address(Adrr, prog.EndEE);
+  if (prog.EndEE < 0) return(0);
+  fprintf(stdout,">> program EEPROM");
+  prog_set_address(Adrr, prog.EndEE);
+  prog_set_address(Adrr, prog.EndEE);
 
   while (Adrr <= prog.EndEE)
   {
@@ -1185,14 +1185,14 @@ int32_t prog_write_id(void)
   int32_t Puffer;
   uint16_t IDMaske = 0x000F;
 
-	if (prog.core >= CORE_30) return(0);  // ACHTUNG fuer Kern=33 gibt es eine ID
-	if (prog.pic.userid.min == -1) return (0);
-	puts (">> program user-ID");
-	prog_set_address(prog.pic.userid.min, prog.pic.userid.max);
-	unsigned char anzahl = 2* (prog.pic.userid.max-prog.pic.userid.min+1);
-	unsigned char endekennzeichen = 0;
-	unsigned char cmd[USB_BLOCKSIZE] = { CMD_WRITE_IDDATA, (unsigned char)anzahl, endekennzeichen };
-	unsigned char buf[USB_BLOCKSIZE];
+  if (prog.core >= CORE_30) return(0);  // ACHTUNG fuer Kern=33 gibt es eine ID
+  if (prog.pic.userid.min == -1) return (0);
+  puts (">> program user-ID");
+  prog_set_address(prog.pic.userid.min, prog.pic.userid.max);
+  unsigned char anzahl = 2* (prog.pic.userid.max-prog.pic.userid.min+1);
+  unsigned char endekennzeichen = 0;
+  unsigned char cmd[USB_BLOCKSIZE] = { CMD_WRITE_IDDATA, (unsigned char)anzahl, endekennzeichen };
+  unsigned char buf[USB_BLOCKSIZE];
 
   switch (prog.core)
   {
@@ -1251,17 +1251,17 @@ int32_t prog_write_id(void)
 // erase PIC
 int32_t prog_erase(void)
 {
-	if ((prog.core == CORE_14) && (prog.pic.calmem.min >= 0)) savecalmem();
-	puts (">> erase PIC");
-	unsigned char cmd[] = { CMD_ERASE };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  if ((prog.core == CORE_14) && (prog.pic.calmem.min >= 0)) savecalmem();
+  puts (">> erase PIC");
+  unsigned char cmd[] = { CMD_ERASE };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
@@ -1269,100 +1269,100 @@ int32_t prog_erase(void)
 // remove codeprotection
 int32_t prog_removecp(void)
 {
-	if ((prog.core == CORE_14) && (prog.pic.calmem.min >= 0)) savecalmem();
-	puts (">> remove codeprotection");
-	unsigned char cmd[] = { CMD_REMOVECP };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  if ((prog.core == CORE_14) && (prog.pic.calmem.min >= 0)) savecalmem();
+  puts (">> remove codeprotection");
+  unsigned char cmd[] = { CMD_REMOVECP };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
 // Selct the PIC-Core (Family)
 int32_t prog_set_core(unsigned char core)
 {
-	unsigned char cmd[] = { CMD_SET_CORE, core };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  unsigned char cmd[] = { CMD_SET_CORE, core };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
 // Uebertragen der PIC-Parameter aus der Database an den Brenner
 int32_t prog_set_pictype(TPicDef& pic)
 {
-	T_PICtype PICdata;
+  T_PICtype PICdata;
 
-	PICdata.cpu					= pic.cpu;
-	PICdata.power				= pic.power;
-	PICdata.blocksize	  = pic.blocksize;
-	PICdata.pins				= pic.pins;
-	PICdata.vpp					= (uint8_t)floor(pic.vpp.deflt*10);       // 130  = 13,0V
-	PICdata.panelsize	  = 0;              // singelpanel ?
-	if (static_cast<int32_t>(pic.pgming.panelsize) < pic.pgmmem.max) PICdata.panelsize = pic.pgming.panelsize;  // multipanel  !
+  PICdata.cpu          = pic.cpu;
+  PICdata.power        = pic.power;
+  PICdata.blocksize    = pic.blocksize;
+  PICdata.pins        = pic.pins;
+  PICdata.vpp          = (uint8_t)floor(pic.vpp.deflt*10);       // 130  = 13,0V
+  PICdata.panelsize    = 0;              // singelpanel ?
+  if (static_cast<int32_t>(pic.pgming.panelsize) < pic.pgmmem.max) PICdata.panelsize = pic.pgming.panelsize;  // multipanel  !
 
-	PICdata.taktik.flash	  = pic.taktik.flash;
-	PICdata.taktik.eeprom	  = pic.taktik.eeprom;
-	PICdata.taktik.id				= pic.taktik.id;
-	PICdata.taktik.config	  = pic.taktik.config;
-	PICdata.taktik.erase	  = pic.taktik.erase;
-	PICdata.taktik.cp				= pic.taktik.cp;
-	PICdata.taktik.read_eeprom	= pic.taktik.read_eeprom;
+  PICdata.taktik.flash    = pic.taktik.flash;
+  PICdata.taktik.eeprom    = pic.taktik.eeprom;
+  PICdata.taktik.id        = pic.taktik.id;
+  PICdata.taktik.config    = pic.taktik.config;
+  PICdata.taktik.erase    = pic.taktik.erase;
+  PICdata.taktik.cp        = pic.taktik.cp;
+  PICdata.taktik.read_eeprom  = pic.taktik.read_eeprom;
 
-	PICdata.latches.pgm			= pic.latches.pgm;
-	PICdata.latches.eedata	= pic.latches.eedata;
-	PICdata.latches.userid	= pic.latches.userid;
-	PICdata.latches.cfg			= pic.latches.cfg;
-	PICdata.latches.rowerase= pic.latches.rowerase;
+  PICdata.latches.pgm      = pic.latches.pgm;
+  PICdata.latches.eedata  = pic.latches.eedata;
+  PICdata.latches.userid  = pic.latches.userid;
+  PICdata.latches.cfg      = pic.latches.cfg;
+  PICdata.latches.rowerase= pic.latches.rowerase;
 
-	PICdata.wait.pgm				= pic.wait.pgm;
-	PICdata.wait.lvpgm			= pic.wait.lvpgm;
-	PICdata.wait.eedata			= pic.wait.eedata;
-	PICdata.wait.cfg				= pic.wait.cfg;
-	PICdata.wait.userid			= pic.wait.userid;
-	PICdata.wait.erase			= pic.wait.erase;
-	PICdata.wait.lverase	  = pic.wait.lverase;
+  PICdata.wait.pgm        = pic.wait.pgm;
+  PICdata.wait.lvpgm      = pic.wait.lvpgm;
+  PICdata.wait.eedata      = pic.wait.eedata;
+  PICdata.wait.cfg        = pic.wait.cfg;
+  PICdata.wait.userid      = pic.wait.userid;
+  PICdata.wait.erase      = pic.wait.erase;
+  PICdata.wait.lverase    = pic.wait.lverase;
 
-	if (strcmp(pic.name, "PIC18F1320") == 0) PICdata.wait.eedata = 6000;
-	if (strcmp(pic.name, "PIC18F1220") == 0) PICdata.wait.eedata = 6000;
+  if (strcmp(pic.name, "PIC18F1320") == 0) PICdata.wait.eedata = 6000;
+  if (strcmp(pic.name, "PIC18F1220") == 0) PICdata.wait.eedata = 6000;
 
-	unsigned char cmd[USB_BLOCKSIZE] = { CMD_SET_PICTYPE};
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	unsigned char length = sizeof(PICdata);
-	memcpy(&cmd[1], &PICdata, length);
+  unsigned char cmd[USB_BLOCKSIZE] = { CMD_SET_PICTYPE};
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  unsigned char length = sizeof(PICdata);
+  memcpy(&cmd[1], &PICdata, length);
 
-	rc = programmer_command(cmd, length + 1, buf);
+  rc = programmer_command(cmd, length + 1, buf);
 
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }  // prog_set_pictype
 
 
 // selects socket or ICSP
 int32_t prog_set_socket(unsigned char socket)
 {
-	unsigned char cmd[] = { CMD_SET_SOC, socket };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
+  unsigned char cmd[] = { CMD_SET_SOC, socket };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
 
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
-	return 0;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
+  return 0;
 }
 
 
@@ -1376,75 +1376,75 @@ int32_t prog_target_run(void)
     return -EFAULT;
   }
 
-	// alles hochohmig
-	unsigned char cmd[] = { CMD_SET_SOC, SOC_OFF };
-	unsigned char buf[USB_BLOCKSIZE];
-		int32_t rc;
-	rc = programmer_command(cmd, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd, 1)) return -EFAULT;
+  // alles hochohmig
+  unsigned char cmd[] = { CMD_SET_SOC, SOC_OFF };
+  unsigned char buf[USB_BLOCKSIZE];
+    int32_t rc;
+  rc = programmer_command(cmd, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd, 1)) return -EFAULT;
 
-	//Run aktivieren
-	unsigned char cmd1[] = { CMD_SET_SOC, SOC_RUN };
-	rc = programmer_command(cmd1, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd1, 1)) return -EFAULT;
-	prog_set_led(1);  // gelbe LED an
-	puts(">> press ENTER to stop Target-Run");
+  //Run aktivieren
+  unsigned char cmd1[] = { CMD_SET_SOC, SOC_RUN };
+  rc = programmer_command(cmd1, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd1, 1)) return -EFAULT;
+  prog_set_led(1);  // gelbe LED an
+  puts(">> press ENTER to stop Target-Run");
 
-	// Wait for input
-	getc (stdin);
+  // Wait for input
+  getc (stdin);
 
-	// alles hochohmig
-	unsigned char cmd2[] = { CMD_SET_SOC, SOC_OFF };
-	rc = programmer_command(cmd2, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd2, 1)) return -EFAULT;
-	//wieder sockel 18/ICSP einstellen
-	unsigned char cmd3[] = { CMD_SET_SOC, prog.socket };
-	rc = programmer_command(cmd3, sizeof(cmd), buf);
-	if (rc < 0) return rc;
-	if (rc < 1) return -EFAULT;
-	if (memcmp(buf, cmd3, 1)) return -EFAULT;
-	prog_set_led(5);  // gelbe LED aus
+  // alles hochohmig
+  unsigned char cmd2[] = { CMD_SET_SOC, SOC_OFF };
+  rc = programmer_command(cmd2, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd2, 1)) return -EFAULT;
+  //wieder sockel 18/ICSP einstellen
+  unsigned char cmd3[] = { CMD_SET_SOC, prog.socket };
+  rc = programmer_command(cmd3, sizeof(cmd), buf);
+  if (rc < 0) return rc;
+  if (rc < 1) return -EFAULT;
+  if (memcmp(buf, cmd3, 1)) return -EFAULT;
+  prog_set_led(5);  // gelbe LED aus
 
-	return 0;
+  return 0;
 }  // prog_target_run
 
 
 
 int32_t prog_regulate_vpp(double lower, double mid, double upper)
 {
-	int32_t rc, i;
-	unsigned char pwm_on, pwm_off;
-	double v = 0, v_mean = 0;
+  int32_t rc, i;
+  unsigned char pwm_on, pwm_off;
+  double v = 0, v_mean = 0;
 
-	pwm_off = (unsigned char)(mid * prog.gainOff - prog.pwm0VOff);
-	pwm_on = (unsigned char)(mid * prog.gainOn - prog.pwm0VOn);
+  pwm_off = (unsigned char)(mid * prog.gainOff - prog.pwm0VOff);
+  pwm_on = (unsigned char)(mid * prog.gainOn - prog.pwm0VOn);
 
   fprintf(stderr, "prog_regulate_vpp(%.02f, %.02f, %.02f) --> %d, %d\n",
     lower, mid, upper, pwm_off, pwm_on);
 
-	rc = prog_set_pwm(pwm_off, pwm_on);
-	if (rc < 0)
-		return rc;
+  rc = prog_set_pwm(pwm_off, pwm_on);
+  if (rc < 0)
+    return rc;
 
-	usleep(500000);
+  usleep(500000);
 
   for (i=0; i<5; i++) {
-    //rc = measure_vpp(&v);  	DEBUG_SPRUT
+    //rc = measure_vpp(&v);    DEBUG_SPRUT
     if (rc < 0)
       return rc;
 
     v_mean += v;
   }
 
-	v_mean /= 5;
-	fprintf(stderr, "prog_regulate_vpp(%.02f, %.02f, %.02f) --> %.02f\n",
-		lower, mid, upper, v_mean);
+  v_mean /= 5;
+  fprintf(stderr, "prog_regulate_vpp(%.02f, %.02f, %.02f) --> %.02f\n",
+    lower, mid, upper, v_mean);
 
   if ((v_mean < lower) || (v_mean > upper)) {
     prog_set_vpp(10, 10);
@@ -1458,51 +1458,51 @@ int32_t prog_regulate_vpp(double lower, double mid, double upper)
 
 int32_t prog_identify(unsigned char core, unsigned char socket)
 {
-	int32_t rc;
+  int32_t rc;
 
-	rc = prog_set_socket(socket);
-	if (rc < 0) return rc;
+  rc = prog_set_socket(socket);
+  if (rc < 0) return rc;
 
-	rc = prog_set_core(core);
-	if (rc < 0) return rc;
+  rc = prog_set_core(core);
+  if (rc < 0) return rc;
 
-	rc = prog_regulate_vpp(12.0, 12.5, 13.0);
-	if (rc < 0) return rc;
+  rc = prog_regulate_vpp(12.0, 12.5, 13.0);
+  if (rc < 0) return rc;
 
-	return prog_read_chipid();
+  return prog_read_chipid();
 }  // prog_identify
 
 
 void init_system(void)
 {
-//	init_endian();  	DEBUG_SPRUT
-	usb_init();
-	memset(&prog, 0, sizeof(prog));
+//  init_endian();    DEBUG_SPRUT
+  usb_init();
+  memset(&prog, 0, sizeof(prog));
 
-	prog.socket					= SOC_18_ICSP;
-	prog.core						= CORE_14;
-	prog.flags1._byte		= 0;
-	prog.flags2._byte		= 0;
-	prog.flags3._byte		= 0;
-	prog.max_flash			= 0;
-	prog.max_ee					= 0;
-	prog.calmemsaved		= 0;
-	prog.pic.vpp.deflt	= 13;
-	prog.supp						= 0xFF;
-	prog.device					= -1;
-	prog.VppLoopMode		= 3;      //0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
-	prog.U00_off				= 6.16;    // Offsetspannung
-	prog.U00_on					= 6.33;    // Offsetspannung
-	strcpy(prog.InHexfilename, "HexIn.hex");
-	strcpy(prog.OutHexfilename, "HexOut.hex");
-	strcpy(prog.picname, "");
-	prog.OsccalPar			= no_OSCCAL;
-	prog.OsccalRom			= no_OSCCAL;
-	prog.BGmask					= 0x0000;
-	prog.BGadr					= 0x0000;
-	prog.BGvalue				= 0x0000;
-	prog.BGnewvalue			= 0x0000;
-	prog.WRITE_EDATA_KEY= 0;
+  prog.socket          = SOC_18_ICSP;
+  prog.core            = CORE_14;
+  prog.flags1._byte    = 0;
+  prog.flags2._byte    = 0;
+  prog.flags3._byte    = 0;
+  prog.max_flash      = 0;
+  prog.max_ee          = 0;
+  prog.calmemsaved    = 0;
+  prog.pic.vpp.deflt  = 13;
+  prog.supp            = 0xFF;
+  prog.device          = -1;
+  prog.VppLoopMode    = 3;      //0-nichts / 1-immer / 2-einmalig / 3- nur herunterregeln
+  prog.U00_off        = 6.16;    // Offsetspannung
+  prog.U00_on          = 6.33;    // Offsetspannung
+  strcpy(prog.InHexfilename, "HexIn.hex");
+  strcpy(prog.OutHexfilename, "HexOut.hex");
+  strcpy(prog.picname, "");
+  prog.OsccalPar      = no_OSCCAL;
+  prog.OsccalRom      = no_OSCCAL;
+  prog.BGmask          = 0x0000;
+  prog.BGadr          = 0x0000;
+  prog.BGvalue        = 0x0000;
+  prog.BGnewvalue      = 0x0000;
+  prog.WRITE_EDATA_KEY= 0;
 
 }
 
