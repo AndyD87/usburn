@@ -279,7 +279,7 @@ typedef struct
   int32_t  protende;
 } TChecksum;
 
-#pragma pack(push, 1)          /* set alignment to 1 -- really important */
+#pragma pack(push, 8)          /* set alignment to 8 -- really important */
 
 /**
  * @brief datastructure for the programmer
